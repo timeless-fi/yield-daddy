@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 import {ERC20} from "solmate/tokens/ERC20.sol";
 
-import {ATokenMock} from "./ATokenMock.sol";
+import {ERC20Mock} from "../../mocks/ERC20Mock.sol";
 import {ILendingPool} from "../../../aave-v2/external/ILendingPool.sol";
 
 contract LendingPoolMock is ILendingPool {
@@ -25,7 +25,7 @@ contract LendingPoolMock is ILendingPool {
 
         // Mint aTokens
         address aTokenAddress = reserveAToken[asset];
-        ATokenMock aToken = ATokenMock(aTokenAddress);
+        ERC20Mock aToken = ERC20Mock(aTokenAddress);
         aToken.mint(onBehalfOf, amount);
     }
 
@@ -36,7 +36,7 @@ contract LendingPoolMock is ILendingPool {
     {
         // Burn aTokens
         address aTokenAddress = reserveAToken[asset];
-        ATokenMock aToken = ATokenMock(aTokenAddress);
+        ERC20Mock aToken = ERC20Mock(aTokenAddress);
         aToken.burn(msg.sender, amount);
 
         // Transfer asset

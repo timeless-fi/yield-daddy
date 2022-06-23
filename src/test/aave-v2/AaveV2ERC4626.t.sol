@@ -7,7 +7,6 @@ import {console2} from "forge-std/console2.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
 
 import {ERC20Mock} from "../mocks/ERC20Mock.sol";
-import {ATokenMock} from "./mocks/ATokenMock.sol";
 import {AaveMiningMock} from "./mocks/AaveMiningMock.sol";
 import {LendingPoolMock} from "./mocks/LendingPoolMock.sol";
 import {AaveV2ERC4626} from "../../aave-v2/AaveV2ERC4626.sol";
@@ -19,7 +18,7 @@ contract AaveV2ERC4626Test is Test {
     address public constant rewardRecipient = address(0x01);
 
     ERC20Mock public aave;
-    ATokenMock public aToken;
+    ERC20Mock public aToken;
     AaveV2ERC4626 public vault;
     ERC20Mock public underlying;
     IAaveMining public aaveMining;
@@ -28,8 +27,8 @@ contract AaveV2ERC4626Test is Test {
 
     function setUp() public {
         aave = new ERC20Mock();
+        aToken = new ERC20Mock();
         underlying = new ERC20Mock();
-        aToken = new ATokenMock(address(underlying));
         lendingPool = new LendingPoolMock();
         aaveMining = new AaveMiningMock(address(aave));
         factory =
