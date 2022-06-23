@@ -159,6 +159,58 @@ contract AaveV2ERC4626 is ERC4626 {
         lendingPool.deposit(address(asset), assets, address(this), 0);
     }
 
+    function maxDeposit(address)
+        public
+        view
+        virtual
+        override
+        returns (uint256)
+    {
+        if (lendingPool.paused()) {
+            return 0;
+        }
+        return type(uint256).max;
+    }
+
+    function maxMint(address)
+        public
+        view
+        virtual
+        override
+        returns (uint256)
+    {
+        if (lendingPool.paused()) {
+            return 0;
+        }
+        return type(uint256).max;
+    }
+
+    function maxWithdraw(address owner)
+        public
+        view
+        virtual
+        override
+        returns (uint256)
+    {
+        if (lendingPool.paused()) {
+            return 0;
+        }
+        return convertToAssets(balanceOf[owner]);
+    }
+
+    function maxRedeem(address owner)
+        public
+        view
+        virtual
+        override
+        returns (uint256)
+    {
+        if (lendingPool.paused()) {
+            return 0;
+        }
+        return balanceOf[owner];
+    }
+
     /// -----------------------------------------------------------------------
     /// ERC20 metadata generation
     /// -----------------------------------------------------------------------

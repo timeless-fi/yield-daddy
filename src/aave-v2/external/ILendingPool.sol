@@ -89,4 +89,6 @@ interface ILendingPool {
         external
         view
         returns (ReserveData memory);
+
+    function paused() external view returns (bool);
 }

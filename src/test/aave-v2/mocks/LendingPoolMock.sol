@@ -8,6 +8,7 @@ import {ILendingPool} from "../../../aave-v2/external/ILendingPool.sol";
 
 contract LendingPoolMock is ILendingPool {
     mapping(address => address) internal reserveAToken;
+    bool public override paused;
 
     function setReserveAToken(address _reserve, address _aTokenAddress)
         external
@@ -19,6 +20,8 @@ contract LendingPoolMock is ILendingPool {
         external
         override
     {
+        require(!paused, "PAUSED");
+
         // Transfer asset
         ERC20 token = ERC20(asset);
         token.transferFrom(msg.sender, address(this), amount);
@@ -34,6 +37,8 @@ contract LendingPoolMock is ILendingPool {
         override
         returns (uint256)
     {
+        require(!paused, "PAUSED");
+
         // Burn aTokens
         address aTokenAddress = reserveAToken[asset];
         ERC20Mock aToken = ERC20Mock(aTokenAddress);
@@ -52,5 +57,9 @@ contract LendingPoolMock is ILendingPool {
         returns (ILendingPool.ReserveData memory data)
     {
         data.aTokenAddress = reserveAToken[asset];
+    }
+
+    function setPaused(bool paused_) external {
+        paused = paused_;
     }
 }
