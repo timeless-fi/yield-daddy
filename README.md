@@ -9,6 +9,9 @@ Gas-optimized ERC4626 wrappers for common yield-generating protocols (e.g. Aave,
 -   [`aave-v2/`](src/aave-v2/): Aave v2 wrapper
     -   [`AaveV2ERC4626.sol`](src/aave-v2/AaveV2ERC4626.sol): ERC4626 wrapper for Aave V2
     -   [`AaveV2ERC4626Factory.sol`](src/aave-v2/AaveV2ERC4626Factory.sol): Factory for creating AaveV2ERC4626 contracts
+-   [`aave-v3/`](src/aave-v3/): Aave v3 wrapper
+    -   [`AaveV3ERC4626.sol`](src/aave-v3/AaveV3ERC4626.sol): ERC4626 wrapper for Aave V3
+    -   [`AaveV3ERC4626Factory.sol`](src/aave-v3/AaveV3ERC4626Factory.sol): Factory for creating AaveV3ERC4626 contracts
 
 ## Installation
 
