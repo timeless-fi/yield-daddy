@@ -91,6 +91,8 @@ contract AaveV2ERC4626 is ERC4626 {
                 allowed - shares;
         }
 
+        beforeWithdraw(assets, shares);
+
         // withdraw assets directly from Aave
         lendingPool.withdraw(address(asset), assets, receiver);
 
@@ -114,6 +116,8 @@ contract AaveV2ERC4626 is ERC4626 {
 
         // Check for rounding error since we round down in previewRedeem.
         require((assets = previewRedeem(shares)) != 0, "ZERO_ASSETS");
+
+        beforeWithdraw(assets, shares);
 
         // withdraw assets directly from Aave
         lendingPool.withdraw(address(asset), assets, receiver);
