@@ -93,12 +93,12 @@ contract AaveV2ERC4626 is ERC4626 {
 
         beforeWithdraw(assets, shares);
 
-        // withdraw assets directly from Aave
-        lendingPool.withdraw(address(asset), assets, receiver);
-
         _burn(owner, shares);
 
         emit Withdraw(msg.sender, receiver, owner, assets, shares);
+
+        // withdraw assets directly from Aave
+        lendingPool.withdraw(address(asset), assets, receiver);
     }
 
     function redeem(uint256 shares, address receiver, address owner)
@@ -119,12 +119,12 @@ contract AaveV2ERC4626 is ERC4626 {
 
         beforeWithdraw(assets, shares);
 
-        // withdraw assets directly from Aave
-        lendingPool.withdraw(address(asset), assets, receiver);
-
         _burn(owner, shares);
 
         emit Withdraw(msg.sender, receiver, owner, assets, shares);
+
+        // withdraw assets directly from Aave
+        lendingPool.withdraw(address(asset), assets, receiver);
     }
 
     function totalAssets() public view virtual override returns (uint256) {
@@ -141,14 +141,11 @@ contract AaveV2ERC4626 is ERC4626 {
         /// Deposit assets into Aave
         /// -----------------------------------------------------------------------
 
-        // Approve to lendingPool
+        // approve to lendingPool
         asset.safeApprove(address(lendingPool), assets);
 
-        // Deposit into lendingPool
+        // deposit into lendingPool
         lendingPool.deposit(address(asset), assets, address(this), 0);
-
-        // Reset token approval to guarantee zero outstanding approval
-        asset.safeApprove(address(lendingPool), 0);
     }
 
     /// -----------------------------------------------------------------------
