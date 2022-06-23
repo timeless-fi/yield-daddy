@@ -68,4 +68,12 @@ contract AaveV3ERC4626FactoryTest is Test {
             "computed vault address incorrect"
         );
     }
+
+    function test_fail_createERC4626ForAssetWithoutAToken() public {
+        ERC20Mock fakeAsset = new ERC20Mock();
+        vm.expectRevert(
+            abi.encodeWithSignature("AaveV3ERC4626__ATokenNonexistent()")
+        );
+        factory.createERC4626(fakeAsset);
+    }
 }

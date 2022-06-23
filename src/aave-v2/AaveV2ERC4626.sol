@@ -24,6 +24,13 @@ contract AaveV2ERC4626 is ERC4626 {
     using SafeTransferLib for ERC20;
 
     /// -----------------------------------------------------------------------
+    /// Errors
+    /// -----------------------------------------------------------------------
+
+    /// @notice Thrown when trying to deploy an AaveV3ERC4626 vault using an asset without an aToken
+    error AaveV2ERC4626__ATokenNonexistent();
+
+    /// -----------------------------------------------------------------------
     /// Immutable params
     /// -----------------------------------------------------------------------
 
@@ -58,7 +65,11 @@ contract AaveV2ERC4626 is ERC4626 {
         // query aToken address
         ILendingPool.ReserveData memory reserveData =
             lendingPool_.getReserveData(address(asset_));
-        aToken = ERC20(reserveData.aTokenAddress);
+        address aTokenAddress = reserveData.aTokenAddress;
+        if (aTokenAddress == address(0)) {
+            revert AaveV2ERC4626__ATokenNonexistent();
+        }
+        aToken = ERC20(aTokenAddress);
     }
 
     /// -----------------------------------------------------------------------
