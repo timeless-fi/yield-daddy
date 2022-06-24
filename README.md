@@ -12,6 +12,9 @@ Gas-optimized ERC4626 wrappers for common yield-generating protocols (e.g. Aave,
 -   [`aave-v3/`](src/aave-v3/): Aave v3 wrapper
     -   [`AaveV3ERC4626.sol`](src/aave-v3/AaveV3ERC4626.sol): ERC4626 wrapper for Aave V3
     -   [`AaveV3ERC4626Factory.sol`](src/aave-v3/AaveV3ERC4626Factory.sol): Factory for creating AaveV3ERC4626 contracts
+-   [`euler/`](src/euler/): Euler Finance wrapper
+    -   [`EulerERC4626.sol`](src/euler/EulerERC4626.sol): ERC4626 wrapper for Euler Finance
+    -   [`EulerERC4626Factory.sol`](src/euler/EulerERC4626Factory.sol): Factory for creating EulerERC4626 contracts
 
 ## Installation
 
