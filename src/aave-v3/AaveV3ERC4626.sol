@@ -169,7 +169,7 @@ contract AaveV3ERC4626 is ERC4626 {
         virtual
         returns (string memory vaultName)
     {
-        vaultName = string.concat("ERC4626-Wrapped Aave v2 ", asset_.symbol());
+        vaultName = string.concat("ERC4626-Wrapped Aave v3 ", asset_.symbol());
     }
 
     function _vaultSymbol(ERC20 asset_)
