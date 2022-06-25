@@ -565,4 +565,10 @@ contract AaveV2ERC4626Test is Test {
         assertEq(vault.maxMint(alice), 0);
         assertEq(vault.maxRedeem(alice), 0);
     }
+
+    function test_claimRewards() public {
+        vault.claimRewards();
+
+        assertEqDecimal(aave.balanceOf(rewardRecipient), 1e18, 18);
+    }
 }

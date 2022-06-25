@@ -12,6 +12,8 @@ import {IComptroller} from "../../compound/external/IComptroller.sol";
 import {CompoundERC4626Factory} from "../../compound/CompoundERC4626Factory.sol";
 
 contract CompoundERC4626Test is Test {
+    address constant rewardRecipient = address(0x01);
+
     ERC20 constant underlying = dai;
     IComptroller constant comptroller =
         IComptroller(0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B);
@@ -23,7 +25,8 @@ contract CompoundERC4626Test is Test {
     CompoundERC4626Factory public factory;
 
     function setUp() public {
-        factory = new CompoundERC4626Factory(comptroller, cEtherAddress);
+        factory =
+            new CompoundERC4626Factory(comptroller, cEtherAddress, rewardRecipient);
         vault = CompoundERC4626(address(factory.createERC4626(dai)));
 
         vm.label(address(dai), "DAI");
@@ -99,5 +102,9 @@ contract CompoundERC4626Test is Test {
         assertEq(vault.convertToAssets(vault.balanceOf(address(this))), 0);
         assertEq(vault.totalSupply(), 0);
         assertEq(vault.totalAssets(), 0);
+    }
+
+    function test_claimRewards() public {
+        vault.claimRewards();
     }
 }

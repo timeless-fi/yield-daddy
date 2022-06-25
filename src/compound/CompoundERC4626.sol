@@ -7,6 +7,7 @@ import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 
 import {ICERC20} from "./external/ICERC20.sol";
 import {LibCompound} from "./lib/LibCompound.sol";
+import {IComptroller} from "./external/IComptroller.sol";
 
 /// @title CompoundERC4626
 /// @author zefram.eth
@@ -37,17 +38,47 @@ contract CompoundERC4626 is ERC4626 {
     /// Immutable params
     /// -----------------------------------------------------------------------
 
+    /// @notice The COMP token contract
+    ERC20 public immutable comp;
+
     /// @notice The Compound cToken contract
     ICERC20 public immutable cToken;
+
+    /// @notice The address that will receive the liquidity mining rewards (if any)
+    address public immutable rewardRecipient;
+
+    /// @notice The Compound comptroller contract
+    IComptroller public immutable comptroller;
 
     /// -----------------------------------------------------------------------
     /// Constructor
     /// -----------------------------------------------------------------------
 
-    constructor(ERC20 asset_, ICERC20 cToken_)
+    constructor(
+        ERC20 asset_,
+        ERC20 comp_,
+        ICERC20 cToken_,
+        address rewardRecipient_,
+        IComptroller comptroller_
+    )
         ERC4626(asset_, _vaultName(asset_), _vaultSymbol(asset_))
     {
+        comp = comp_;
         cToken = cToken_;
+        comptroller = comptroller_;
+        rewardRecipient = rewardRecipient_;
+    }
+
+    /// -----------------------------------------------------------------------
+    /// Compound liquidity mining
+    /// -----------------------------------------------------------------------
+
+    /// @notice Claims liquidity mining rewards from Compound and sends it to rewardRecipient
+    function claimRewards() external {
+        ICERC20[] memory cTokens = new ICERC20[](1);
+        cTokens[0] = cToken;
+        comptroller.claimComp(address(this), cTokens);
+        comp.safeTransfer(rewardRecipient, comp.balanceOf(address(this)));
     }
 
     /// -----------------------------------------------------------------------

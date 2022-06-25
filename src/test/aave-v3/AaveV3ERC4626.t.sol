@@ -468,4 +468,10 @@ contract AaveV3ERC4626Test is Test {
         assertEq(vault.balanceOf(bob), 0);
         assertEq(underlying.balanceOf(alice), 1e18);
     }
+
+    function test_claimRewards() public {
+        vault.claimRewards();
+
+        assertEqDecimal(aave.balanceOf(rewardRecipient), 1e18, 18);
+    }
 }

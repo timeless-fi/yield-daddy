@@ -24,6 +24,12 @@ contract CompoundERC4626Factory is ERC4626Factory {
     /// Immutable params
     /// -----------------------------------------------------------------------
 
+    /// @notice The COMP token contract
+    ERC20 public immutable comp;
+
+    /// @notice The address that will receive the liquidity mining rewards (if any)
+    address public immutable rewardRecipient;
+
     /// @notice The Compound comptroller contract
     IComptroller public immutable comptroller;
 
@@ -38,8 +44,14 @@ contract CompoundERC4626Factory is ERC4626Factory {
     /// Constructor
     /// -----------------------------------------------------------------------
 
-    constructor(IComptroller comptroller_, address cEtherAddress) {
+    constructor(
+        IComptroller comptroller_,
+        address cEtherAddress,
+        address rewardRecipient_
+    ) {
         comptroller = comptroller_;
+        rewardRecipient = rewardRecipient_;
+        comp = ERC20(comptroller_.getCompAddress());
 
         // initialize underlyingToCToken
         ICERC20[] memory allCTokens = comptroller_.getAllMarkets();
@@ -73,7 +85,8 @@ contract CompoundERC4626Factory is ERC4626Factory {
             revert CompoundERC4626Factory__CTokenNonexistent();
         }
 
-        vault = new CompoundERC4626{salt: bytes32(0)}(asset, cToken);
+        vault =
+        new CompoundERC4626{salt: bytes32(0)}(asset, comp, cToken, rewardRecipient, comptroller);
 
         emit CreateERC4626(asset, vault);
     }
@@ -93,7 +106,7 @@ contract CompoundERC4626Factory is ERC4626Factory {
                         // Deployment bytecode:
                         type(CompoundERC4626).creationCode,
                         // Constructor arguments:
-                        abi.encode(asset, underlyingToCToken[asset])
+                        abi.encode(asset, comp, underlyingToCToken[asset], rewardRecipient, comptroller)
                     )
                 )
             )
