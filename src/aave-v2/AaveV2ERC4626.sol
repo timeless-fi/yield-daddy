@@ -24,6 +24,15 @@ contract AaveV2ERC4626 is ERC4626 {
     using SafeTransferLib for ERC20;
 
     /// -----------------------------------------------------------------------
+    /// Constants
+    /// -----------------------------------------------------------------------
+
+    uint256 internal constant ACTIVE_MASK =
+        0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFF;
+    uint256 internal constant FROZEN_MASK =
+        0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDFFFFFFFFFFFFFF;
+
+    /// -----------------------------------------------------------------------
     /// Immutable params
     /// -----------------------------------------------------------------------
 
@@ -152,9 +161,18 @@ contract AaveV2ERC4626 is ERC4626 {
         override
         returns (uint256)
     {
+        // check if pool is paused
         if (lendingPool.paused()) {
             return 0;
         }
+
+        // check if asset is paused
+        uint256 configData =
+            lendingPool.getReserveData(address(asset)).configuration.data;
+        if (!(_getActive(configData) && !_getFrozen(configData))) {
+            return 0;
+        }
+
         return type(uint256).max;
     }
 
@@ -165,9 +183,18 @@ contract AaveV2ERC4626 is ERC4626 {
         override
         returns (uint256)
     {
+        // check if pool is paused
         if (lendingPool.paused()) {
             return 0;
         }
+
+        // check if asset is paused
+        uint256 configData =
+            lendingPool.getReserveData(address(asset)).configuration.data;
+        if (!(_getActive(configData) && !_getFrozen(configData))) {
+            return 0;
+        }
+
         return type(uint256).max;
     }
 
@@ -178,10 +205,21 @@ contract AaveV2ERC4626 is ERC4626 {
         override
         returns (uint256)
     {
+        // check if pool is paused
         if (lendingPool.paused()) {
             return 0;
         }
-        return convertToAssets(balanceOf[owner]);
+
+        // check if asset is paused
+        uint256 configData =
+            lendingPool.getReserveData(address(asset)).configuration.data;
+        if (!_getActive(configData)) {
+            return 0;
+        }
+
+        uint256 cash = asset.balanceOf(address(aToken));
+        uint256 assetsBalance = convertToAssets(balanceOf[owner]);
+        return cash < assetsBalance ? cash : assetsBalance;
     }
 
     function maxRedeem(address owner)
@@ -191,10 +229,22 @@ contract AaveV2ERC4626 is ERC4626 {
         override
         returns (uint256)
     {
+        // check if pool is paused
         if (lendingPool.paused()) {
             return 0;
         }
-        return balanceOf[owner];
+
+        // check if asset is paused
+        uint256 configData =
+            lendingPool.getReserveData(address(asset)).configuration.data;
+        if (!_getActive(configData)) {
+            return 0;
+        }
+
+        uint256 cash = asset.balanceOf(address(aToken));
+        uint256 cashInShares = convertToShares(cash);
+        uint256 shareBalance = balanceOf[owner];
+        return cashInShares < shareBalance ? cashInShares : shareBalance;
     }
 
     /// -----------------------------------------------------------------------
@@ -217,5 +267,17 @@ contract AaveV2ERC4626 is ERC4626 {
         returns (string memory vaultSymbol)
     {
         vaultSymbol = string.concat("wa", asset_.symbol());
+    }
+
+    /// -----------------------------------------------------------------------
+    /// Internal functions
+    /// -----------------------------------------------------------------------
+
+    function _getActive(uint256 configData) internal pure returns (bool) {
+        return (configData & ~ACTIVE_MASK) != 0;
+    }
+
+    function _getFrozen(uint256 configData) internal pure returns (bool) {
+        return (configData & ~FROZEN_MASK) != 0;
     }
 }

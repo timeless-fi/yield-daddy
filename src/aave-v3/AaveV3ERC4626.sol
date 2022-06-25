@@ -24,6 +24,24 @@ contract AaveV3ERC4626 is ERC4626 {
     using SafeTransferLib for ERC20;
 
     /// -----------------------------------------------------------------------
+    /// Constants
+    /// -----------------------------------------------------------------------
+
+    uint256 internal constant DECIMALS_MASK =
+        0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00FFFFFFFFFFFF;
+    uint256 internal constant ACTIVE_MASK =
+        0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFF;
+    uint256 internal constant FROZEN_MASK =
+        0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDFFFFFFFFFFFFFF;
+    uint256 internal constant PAUSED_MASK =
+        0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFF;
+    uint256 internal constant SUPPLY_CAP_MASK =
+        0xFFFFFFFFFFFFFFFFFFFFFFFFFF000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+
+    uint256 internal constant SUPPLY_CAP_START_BIT_POSITION = 116;
+    uint256 internal constant RESERVE_DECIMALS_START_BIT_POSITION = 48;
+
+    /// -----------------------------------------------------------------------
     /// Immutable params
     /// -----------------------------------------------------------------------
 
@@ -145,6 +163,107 @@ contract AaveV3ERC4626 is ERC4626 {
         lendingPool.supply(address(asset), assets, address(this), 0);
     }
 
+    function maxDeposit(address)
+        public
+        view
+        virtual
+        override
+        returns (uint256)
+    {
+        // check if asset is paused
+        uint256 configData =
+            lendingPool.getReserveData(address(asset)).configuration.data;
+        if (
+            !(
+                _getActive(configData)
+                    && !_getFrozen(configData)
+                    && !_getPaused(configData)
+                )
+        ) {
+            return 0;
+        }
+
+        // handle supply cap
+        uint256 supplyCapInWholeTokens = _getSupplyCap(configData);
+        if (supplyCapInWholeTokens == 0) {
+            return type(uint256).max;
+        }
+
+        uint8 tokenDecimals = _getDecimals(configData);
+        uint256 supplyCap = supplyCapInWholeTokens * 10 ** tokenDecimals;
+        return supplyCap - aToken.totalSupply();
+    }
+
+    function maxMint(address)
+        public
+        view
+        virtual
+        override
+        returns (uint256)
+    {
+        // check if asset is paused
+        uint256 configData =
+            lendingPool.getReserveData(address(asset)).configuration.data;
+        if (
+            !(
+                _getActive(configData)
+                    && !_getFrozen(configData)
+                    && !_getPaused(configData)
+                )
+        ) {
+            return 0;
+        }
+
+        // handle supply cap
+        uint256 supplyCapInWholeTokens = _getSupplyCap(configData);
+        if (supplyCapInWholeTokens == 0) {
+            return type(uint256).max;
+        }
+
+        uint8 tokenDecimals = _getDecimals(configData);
+        uint256 supplyCap = supplyCapInWholeTokens * 10 ** tokenDecimals;
+        return convertToShares(supplyCap - aToken.totalSupply());
+    }
+
+    function maxWithdraw(address owner)
+        public
+        view
+        virtual
+        override
+        returns (uint256)
+    {
+        // check if asset is paused
+        uint256 configData =
+            lendingPool.getReserveData(address(asset)).configuration.data;
+        if (!(_getActive(configData) && !_getPaused(configData))) {
+            return 0;
+        }
+
+        uint256 cash = asset.balanceOf(address(aToken));
+        uint256 assetsBalance = convertToAssets(balanceOf[owner]);
+        return cash < assetsBalance ? cash : assetsBalance;
+    }
+
+    function maxRedeem(address owner)
+        public
+        view
+        virtual
+        override
+        returns (uint256)
+    {
+        // check if asset is paused
+        uint256 configData =
+            lendingPool.getReserveData(address(asset)).configuration.data;
+        if (!(_getActive(configData) && !_getPaused(configData))) {
+            return 0;
+        }
+
+        uint256 cash = asset.balanceOf(address(aToken));
+        uint256 cashInShares = convertToShares(cash);
+        uint256 shareBalance = balanceOf[owner];
+        return cashInShares < shareBalance ? cashInShares : shareBalance;
+    }
+
     /// -----------------------------------------------------------------------
     /// ERC20 metadata generation
     /// -----------------------------------------------------------------------
@@ -165,5 +284,33 @@ contract AaveV3ERC4626 is ERC4626 {
         returns (string memory vaultSymbol)
     {
         vaultSymbol = string.concat("wa", asset_.symbol());
+    }
+
+    /// -----------------------------------------------------------------------
+    /// Internal functions
+    /// -----------------------------------------------------------------------
+
+    function _getDecimals(uint256 configData) internal pure returns (uint8) {
+        return uint8((configData & ~DECIMALS_MASK) >> RESERVE_DECIMALS_START_BIT_POSITION);
+    }
+
+    function _getActive(uint256 configData) internal pure returns (bool) {
+        return (configData & ~ACTIVE_MASK) != 0;
+    }
+
+    function _getFrozen(uint256 configData) internal pure returns (bool) {
+        return (configData & ~FROZEN_MASK) != 0;
+    }
+
+    function _getPaused(uint256 configData) internal pure returns (bool) {
+        return (configData & ~PAUSED_MASK) != 0;
+    }
+
+    function _getSupplyCap(uint256 configData)
+        internal
+        pure
+        returns (uint256)
+    {
+        return (configData & ~SUPPLY_CAP_MASK) >> SUPPLY_CAP_START_BIT_POSITION;
     }
 }

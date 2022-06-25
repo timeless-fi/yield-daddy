@@ -8,4 +8,8 @@ interface IComptroller {
     function getAllMarkets() external view returns (ICERC20[] memory);
     function allMarkets(uint256 index) external view returns (ICERC20);
     function claimComp(address holder, ICERC20[] memory cTokens) external;
+    function mintGuardianPaused(ICERC20 cToken)
+        external
+        view
+        returns (bool);
 }

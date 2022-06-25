@@ -123,6 +123,16 @@ contract CompoundERC4626 is ERC4626 {
         }
     }
 
+    function maxDeposit(address) public view override returns (uint256) {
+        if (comptroller.mintGuardianPaused(cToken)) return 0;
+        return type(uint256).max;
+    }
+
+    function maxMint(address) public view override returns (uint256) {
+        if (comptroller.mintGuardianPaused(cToken)) return 0;
+        return type(uint256).max;
+    }
+
     function maxWithdraw(address owner)
         public
         view
