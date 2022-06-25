@@ -8,8 +8,9 @@ update:; forge update
 
 # Build & test
 build  :; forge build
-test   :; forge test
+test   :; forge test --no-match-contract CompoundERC4626.*Test
 trace   :; forge test -vvv
 clean  :; forge clean
 snapshot :; forge snapshot
 fmt    :; forge fmt
+test-compound :; forge test --fork-url $(RPC_URL_MAINNET) --match-contract CompoundERC4626.*Test -vvv
