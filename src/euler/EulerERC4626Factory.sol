@@ -5,6 +5,7 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 import {ERC4626} from "solmate/mixins/ERC4626.sol";
 
 import {EulerERC4626} from "./EulerERC4626.sol";
+import {IEulerEToken} from "./external/IEulerEToken.sol";
 import {ERC4626Factory} from "../base/ERC4626Factory.sol";
 import {IEulerMarkets} from "./external/IEulerMarkets.sol";
 
@@ -12,6 +13,13 @@ import {IEulerMarkets} from "./external/IEulerMarkets.sol";
 /// @author zefram.eth
 /// @notice Factory for creating EulerERC4626 contracts
 contract EulerERC4626Factory is ERC4626Factory {
+    /// -----------------------------------------------------------------------
+    /// Errors
+    /// -----------------------------------------------------------------------
+
+    /// @notice Thrown when trying to deploy an EulerERC4626 vault using an asset without an eToken
+    error EulerERC4626Factory__ETokenNonexistent();
+
     /// -----------------------------------------------------------------------
     /// Immutable params
     /// -----------------------------------------------------------------------
@@ -43,7 +51,13 @@ contract EulerERC4626Factory is ERC4626Factory {
         override
         returns (ERC4626 vault)
     {
-        vault = new EulerERC4626{salt: bytes32(0)}(asset, euler, markets);
+        address eTokenAddress = markets.underlyingToEToken(address(asset));
+        if (eTokenAddress == address(0)) {
+            revert EulerERC4626Factory__ETokenNonexistent();
+        }
+
+        vault =
+        new EulerERC4626{salt: bytes32(0)}(asset, euler, IEulerEToken(eTokenAddress));
 
         emit CreateERC4626(asset, vault);
     }
@@ -63,7 +77,9 @@ contract EulerERC4626Factory is ERC4626Factory {
                         // Deployment bytecode:
                         type(EulerERC4626).creationCode,
                         // Constructor arguments:
-                        abi.encode(asset, euler, markets)
+                        abi.encode(
+                            asset, euler, IEulerEToken(markets.underlyingToEToken(address(asset)))
+                        )
                     )
                 )
             )

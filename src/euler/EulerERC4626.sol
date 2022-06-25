@@ -6,7 +6,6 @@ import {ERC4626} from "solmate/mixins/ERC4626.sol";
 import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 
 import {IEulerEToken} from "./external/IEulerEToken.sol";
-import {IEulerMarkets} from "./external/IEulerMarkets.sol";
 
 /// @title EulerERC4626
 /// @author zefram.eth
@@ -19,13 +18,6 @@ contract EulerERC4626 is ERC4626 {
     using SafeTransferLib for ERC20;
 
     /// -----------------------------------------------------------------------
-    /// Errors
-    /// -----------------------------------------------------------------------
-
-    /// @notice Thrown when trying to deploy an EulerERC4626 vault using an asset without an eToken
-    error EulerERC4626__ETokenNonexistent();
-
-    /// -----------------------------------------------------------------------
     /// Immutable params
     /// -----------------------------------------------------------------------
 
@@ -36,25 +28,15 @@ contract EulerERC4626 is ERC4626 {
     /// @notice The Euler eToken contract
     IEulerEToken public immutable eToken;
 
-    /// @notice The Euler markets module address
-    IEulerMarkets public immutable markets;
-
     /// -----------------------------------------------------------------------
     /// Constructor
     /// -----------------------------------------------------------------------
 
-    constructor(ERC20 asset_, address euler_, IEulerMarkets markets_)
+    constructor(ERC20 asset_, address euler_, IEulerEToken eToken_)
         ERC4626(asset_, _vaultName(asset_), _vaultSymbol(asset_))
     {
         euler = euler_;
-        markets = markets_;
-
-        // query eToken address
-        address eTokenAddress = markets_.underlyingToEToken(address(asset_));
-        if (eTokenAddress == address(0)) {
-            revert EulerERC4626__ETokenNonexistent();
-        }
-        eToken = IEulerEToken(eTokenAddress);
+        eToken = eToken_;
     }
 
     /// -----------------------------------------------------------------------

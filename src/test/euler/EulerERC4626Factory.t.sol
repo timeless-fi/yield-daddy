@@ -36,9 +36,6 @@ contract EulerERC4626FactoryTest is Test {
 
         assertEq(address(vault.eToken()), address(eToken), "eToken incorrect");
         assertEq(address(vault.euler()), address(euler), "euler incorrect");
-        assertEq(
-            address(vault.markets()), address(markets), "markets incorrect"
-        );
     }
 
     function test_computeERC4626Address() public {
@@ -55,7 +52,7 @@ contract EulerERC4626FactoryTest is Test {
     function test_fail_createERC4626ForAssetWithoutEToken() public {
         ERC20Mock fakeAsset = new ERC20Mock();
         vm.expectRevert(
-            abi.encodeWithSignature("EulerERC4626__ETokenNonexistent()")
+            abi.encodeWithSignature("EulerERC4626Factory__ETokenNonexistent()")
         );
         factory.createERC4626(fakeAsset);
     }

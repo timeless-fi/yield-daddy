@@ -24,13 +24,6 @@ contract AaveV3ERC4626 is ERC4626 {
     using SafeTransferLib for ERC20;
 
     /// -----------------------------------------------------------------------
-    /// Errors
-    /// -----------------------------------------------------------------------
-
-    /// @notice Thrown when trying to deploy an AaveV3ERC4626 vault using an asset without an aToken
-    error AaveV3ERC4626__ATokenNonexistent();
-
-    /// -----------------------------------------------------------------------
     /// Immutable params
     /// -----------------------------------------------------------------------
 
@@ -52,24 +45,17 @@ contract AaveV3ERC4626 is ERC4626 {
 
     constructor(
         ERC20 asset_,
+        ERC20 aToken_,
         IPool lendingPool_,
         address rewardRecipient_,
         IRewardsController rewardsController_
     )
         ERC4626(asset_, _vaultName(asset_), _vaultSymbol(asset_))
     {
+        aToken = aToken_;
         lendingPool = lendingPool_;
         rewardRecipient = rewardRecipient_;
         rewardsController = rewardsController_;
-
-        // query aToken address
-        IPool.ReserveData memory reserveData =
-            lendingPool_.getReserveData(address(asset_));
-        address aTokenAddress = reserveData.aTokenAddress;
-        if (aTokenAddress == address(0)) {
-            revert AaveV3ERC4626__ATokenNonexistent();
-        }
-        aToken = ERC20(aTokenAddress);
     }
 
     /// -----------------------------------------------------------------------

@@ -14,6 +14,13 @@ import {IRewardsController} from "./external/IRewardsController.sol";
 /// @notice Factory for creating AaveV3ERC4626 contracts
 contract AaveV3ERC4626Factory is ERC4626Factory {
     /// -----------------------------------------------------------------------
+    /// Errors
+    /// -----------------------------------------------------------------------
+
+    /// @notice Thrown when trying to deploy an AaveV3ERC4626 vault using an asset without an aToken
+    error AaveV3ERC4626Factory__ATokenNonexistent();
+
+    /// -----------------------------------------------------------------------
     /// Immutable params
     /// -----------------------------------------------------------------------
 
@@ -51,8 +58,15 @@ contract AaveV3ERC4626Factory is ERC4626Factory {
         override
         returns (ERC4626 vault)
     {
+        IPool.ReserveData memory reserveData =
+            lendingPool.getReserveData(address(asset));
+        address aTokenAddress = reserveData.aTokenAddress;
+        if (aTokenAddress == address(0)) {
+            revert AaveV3ERC4626Factory__ATokenNonexistent();
+        }
+
         vault =
-        new AaveV3ERC4626{salt: bytes32(0)}(asset, lendingPool, rewardRecipient, rewardsController);
+        new AaveV3ERC4626{salt: bytes32(0)}(asset, ERC20(aTokenAddress), lendingPool, rewardRecipient, rewardsController);
 
         emit CreateERC4626(asset, vault);
     }
@@ -65,6 +79,10 @@ contract AaveV3ERC4626Factory is ERC4626Factory {
         override
         returns (ERC4626 vault)
     {
+        IPool.ReserveData memory reserveData =
+            lendingPool.getReserveData(address(asset));
+        address aTokenAddress = reserveData.aTokenAddress;
+
         vault = ERC4626(
             _computeCreate2Address(
                 keccak256(
@@ -72,7 +90,9 @@ contract AaveV3ERC4626Factory is ERC4626Factory {
                         // Deployment bytecode:
                         type(AaveV3ERC4626).creationCode,
                         // Constructor arguments:
-                        abi.encode(asset, lendingPool, rewardRecipient, rewardsController)
+                        abi.encode(
+                            asset, ERC20(aTokenAddress), lendingPool, rewardRecipient, rewardsController
+                        )
                     )
                 )
             )
