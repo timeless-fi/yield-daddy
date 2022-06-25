@@ -123,6 +123,29 @@ contract CompoundERC4626 is ERC4626 {
         }
     }
 
+    function maxWithdraw(address owner)
+        public
+        view
+        override
+        returns (uint256)
+    {
+        uint256 cash = cToken.getCash();
+        uint256 assetsBalance = convertToAssets(balanceOf[owner]);
+        return cash < assetsBalance ? cash : assetsBalance;
+    }
+
+    function maxRedeem(address owner)
+        public
+        view
+        override
+        returns (uint256)
+    {
+        uint256 cash = cToken.getCash();
+        uint256 cashInShares = convertToShares(cash);
+        uint256 shareBalance = balanceOf[owner];
+        return cashInShares < shareBalance ? cashInShares : shareBalance;
+    }
+
     /// -----------------------------------------------------------------------
     /// ERC20 metadata generation
     /// -----------------------------------------------------------------------

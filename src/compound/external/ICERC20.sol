@@ -13,6 +13,8 @@ abstract contract ICERC20 is ERC20 {
 
     function underlying() external view virtual returns (ERC20);
 
+    function getCash() external view virtual returns (uint256);
+
     function totalBorrows() external view virtual returns (uint256);
 
     function totalReserves() external view virtual returns (uint256);
