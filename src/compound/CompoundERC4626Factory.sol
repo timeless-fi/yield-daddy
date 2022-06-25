@@ -68,8 +68,12 @@ contract CompoundERC4626Factory is ERC4626Factory {
         override
         returns (ERC4626 vault)
     {
-        vault =
-            new CompoundERC4626{salt: bytes32(0)}(asset, underlyingToCToken[asset]);
+        ICERC20 cToken = underlyingToCToken[asset];
+        if (address(cToken) == address(0)) {
+            revert CompoundERC4626Factory__CTokenNonexistent();
+        }
+
+        vault = new CompoundERC4626{salt: bytes32(0)}(asset, cToken);
 
         emit CreateERC4626(asset, vault);
     }
