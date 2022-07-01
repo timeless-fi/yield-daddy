@@ -5,7 +5,7 @@ deploy() {
 	NAME=$1
 	ARGS=${@:2}
 
-	ADDRESS=$(forge create $NAME --json --rpc-url=$RPC_URL --private-key=$PRIVATE_KEY --constructor-args $ARGS | jq -r '.deployedTo')
+	ADDRESS=$(forge create $NAME --json --force --rpc-url=$RPC_URL --private-key=$PRIVATE_KEY --constructor-args $ARGS | jq -r '.deployedTo')
 	saveContract "$NAME" "$ADDRESS"
 	echo "$ADDRESS"
 }

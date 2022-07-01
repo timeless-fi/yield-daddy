@@ -18,6 +18,8 @@ Gas-optimized ERC4626 wrappers for common yield-generating protocols (e.g. Aave,
 -   [`compound/`](src/compound/): Compound Finance wrapper
     -   [`CompoundERC4626.sol`](src/compound/CompoundERC4626.sol): ERC4626 wrapper for Compound Finance
     -   [`CompoundERC4626Factory.sol`](src/compound/CompoundERC4626Factory.sol): Factory for creating CompoundERC4626 contracts
+-   [`lido/`](src/lido/): Lido stETH wrapper
+    -   [`StETHERC4626.sol`](src/lido/StETHERC4626.sol): ERC4626 wrapper for Lido stETH
 
 ## Installation
 
