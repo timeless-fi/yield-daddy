@@ -4,7 +4,7 @@ pragma solidity ^0.8.4;
 import {ERC20} from "solmate/tokens/ERC20.sol";
 
 import {ERC20Mock} from "../../mocks/ERC20Mock.sol";
-import {IPool} from "../../../aave-v3/external/IPool.sol";
+import {IPool} from "../../../src/aave-v3/external/IPool.sol";
 
 contract PoolMock is IPool {
     mapping(address => address) internal reserveAToken;

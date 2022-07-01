@@ -6,37 +6,37 @@ import {console2} from "forge-std/console2.sol";
 
 import {ERC20} from "solmate/tokens/ERC20.sol";
 
-import {PoolMock} from "./mocks/PoolMock.sol";
 import {ERC20Mock} from "../mocks/ERC20Mock.sol";
-import {IPool} from "../../aave-v3/external/IPool.sol";
-import {AaveV3ERC4626} from "../../aave-v3/AaveV3ERC4626.sol";
-import {RewardsControllerMock} from "./mocks/RewardsControllerMock.sol";
-import {AaveV3ERC4626Factory} from "../../aave-v3/AaveV3ERC4626Factory.sol";
-import {IRewardsController} from "../../aave-v3/external/IRewardsController.sol";
+import {AaveMiningMock} from "./mocks/AaveMiningMock.sol";
+import {LendingPoolMock} from "./mocks/LendingPoolMock.sol";
+import {AaveV2ERC4626} from "../../src/aave-v2/AaveV2ERC4626.sol";
+import {IAaveMining} from "../../src/aave-v2/external/IAaveMining.sol";
+import {ILendingPool} from "../../src/aave-v2/external/ILendingPool.sol";
+import {AaveV2ERC4626Factory} from "../../src/aave-v2/AaveV2ERC4626Factory.sol";
 
-contract AaveV3ERC4626Test is Test {
+contract AaveV2ERC4626Test is Test {
     address public constant rewardRecipient = address(0x01);
 
     ERC20Mock public aave;
     ERC20Mock public aToken;
-    AaveV3ERC4626 public vault;
+    AaveV2ERC4626 public vault;
     ERC20Mock public underlying;
-    PoolMock public lendingPool;
-    AaveV3ERC4626Factory public factory;
-    IRewardsController public rewardsController;
+    IAaveMining public aaveMining;
+    LendingPoolMock public lendingPool;
+    AaveV2ERC4626Factory public factory;
 
     function setUp() public {
         aave = new ERC20Mock();
         aToken = new ERC20Mock();
         underlying = new ERC20Mock();
-        lendingPool = new PoolMock();
-        rewardsController = new RewardsControllerMock(address(aave));
+        lendingPool = new LendingPoolMock();
+        aaveMining = new AaveMiningMock(address(aave));
         factory =
-        new AaveV3ERC4626Factory(lendingPool, rewardRecipient, rewardsController);
+            new AaveV2ERC4626Factory(aaveMining, rewardRecipient, lendingPool);
 
         lendingPool.setReserveAToken(address(underlying), address(aToken));
 
-        vault = AaveV3ERC4626(address(factory.createERC4626(underlying)));
+        vault = AaveV2ERC4626(address(factory.createERC4626(underlying)));
     }
 
     function testSingleDepositWithdraw(uint128 amount) public {
@@ -467,6 +467,103 @@ contract AaveV3ERC4626Test is Test {
         assertEq(vault.balanceOf(alice), 0);
         assertEq(vault.balanceOf(bob), 0);
         assertEq(underlying.balanceOf(alice), 1e18);
+    }
+
+    function testFail_depositWhenPaused(uint128 amount) public {
+        if (amount == 0) amount = 1;
+
+        uint256 aliceUnderlyingAmount = amount;
+
+        address alice = address(0xABCD);
+
+        underlying.mint(alice, aliceUnderlyingAmount);
+
+        vm.prank(alice);
+        underlying.approve(address(vault), aliceUnderlyingAmount);
+        assertEq(
+            underlying.allowance(alice, address(vault)), aliceUnderlyingAmount
+        );
+
+        lendingPool.setPaused(true);
+
+        vm.prank(alice);
+        vault.deposit(aliceUnderlyingAmount, alice);
+    }
+
+    function testFail_withdrawWhenPaused(uint128 amount) public {
+        if (amount == 0) amount = 1;
+
+        uint256 aliceUnderlyingAmount = amount;
+
+        address alice = address(0xABCD);
+
+        underlying.mint(alice, aliceUnderlyingAmount);
+
+        vm.prank(alice);
+        underlying.approve(address(vault), aliceUnderlyingAmount);
+        assertEq(
+            underlying.allowance(alice, address(vault)), aliceUnderlyingAmount
+        );
+
+        vm.prank(alice);
+        vault.deposit(aliceUnderlyingAmount, alice);
+
+        lendingPool.setPaused(true);
+
+        vm.prank(alice);
+        vault.withdraw(aliceUnderlyingAmount, alice, alice);
+    }
+
+    function testFail_mintWhenPaused(uint128 amount) public {
+        if (amount == 0) amount = 1;
+
+        uint256 aliceShareAmount = amount;
+
+        address alice = address(0xABCD);
+
+        underlying.mint(alice, aliceShareAmount);
+
+        vm.prank(alice);
+        underlying.approve(address(vault), aliceShareAmount);
+        assertEq(underlying.allowance(alice, address(vault)), aliceShareAmount);
+
+        lendingPool.setPaused(true);
+
+        vm.prank(alice);
+        vault.mint(aliceShareAmount, alice);
+    }
+
+    function testFail_redeemWhenPaused(uint128 amount) public {
+        if (amount == 0) amount = 1;
+
+        uint256 aliceShareAmount = amount;
+
+        address alice = address(0xABCD);
+
+        underlying.mint(alice, aliceShareAmount);
+
+        vm.prank(alice);
+        underlying.approve(address(vault), aliceShareAmount);
+        assertEq(underlying.allowance(alice, address(vault)), aliceShareAmount);
+
+        vm.prank(alice);
+        vault.mint(aliceShareAmount, alice);
+
+        lendingPool.setPaused(true);
+
+        vm.prank(alice);
+        vault.redeem(aliceShareAmount, alice, alice);
+    }
+
+    function test_maxAmountsWhenPaused() public {
+        address alice = address(0xABCD);
+
+        lendingPool.setPaused(true);
+
+        assertEq(vault.maxDeposit(alice), 0);
+        assertEq(vault.maxWithdraw(alice), 0);
+        assertEq(vault.maxMint(alice), 0);
+        assertEq(vault.maxRedeem(alice), 0);
     }
 
     function test_claimRewards() public {
