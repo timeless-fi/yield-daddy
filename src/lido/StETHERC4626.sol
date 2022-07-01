@@ -3,26 +3,29 @@ pragma solidity ^0.8.13;
 
 import {ERC20} from "solmate/tokens/ERC20.sol";
 import {ERC4626} from "solmate/mixins/ERC4626.sol";
-import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
+import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
 
-import {IStEth} from "./external/IStEth.sol";
+import {IStETH} from "./external/IStETH.sol";
 
 /// @title StETHERC4626
 /// @author zefram.eth
 /// @notice ERC4626 wrapper for Lido stETH
+/// @dev Uses stETH's internal shares accounting instead of using regular vault accounting
+/// since this prevents attackers from atomically increasing the vault's share value
+/// and exploiting lending protocols that use this vault as a borrow asset.
 contract StETHERC4626 is ERC4626 {
     /// -----------------------------------------------------------------------
     /// Libraries usage
     /// -----------------------------------------------------------------------
 
-    using SafeTransferLib for ERC20;
+    using FixedPointMathLib for uint256;
 
     /// -----------------------------------------------------------------------
     /// Immutable params
     /// -----------------------------------------------------------------------
 
     /// @notice The Lido stETH contract
-    IStEth public immutable stETH;
+    IStETH public immutable stETH;
 
     /// -----------------------------------------------------------------------
     /// Constructor
@@ -39,7 +42,7 @@ contract StETHERC4626 is ERC4626 {
     /// -----------------------------------------------------------------------
 
     function totalAssets() public view virtual override returns (uint256) {
-        return stETH.getPooledEthByShares(totalSupply);
+        return stETH.balanceOf(address(this));
     }
 
     function convertToShares(uint256 assets)
