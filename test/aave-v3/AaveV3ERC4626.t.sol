@@ -6,31 +6,38 @@ import {console2} from "forge-std/console2.sol";
 
 import {ERC20} from "solmate/tokens/ERC20.sol";
 
-import {EulerMock} from "./mocks/EulerMock.sol";
+import {PoolMock} from "./mocks/PoolMock.sol";
 import {ERC20Mock} from "../mocks/ERC20Mock.sol";
-import {EulerERC4626} from "../../euler/EulerERC4626.sol";
-import {EulerETokenMock} from "./mocks/EulerETokenMock.sol";
-import {EulerMarketsMock} from "./mocks/EulerMarketsMock.sol";
-import {EulerERC4626Factory} from "../../euler/EulerERC4626Factory.sol";
+import {IPool} from "../../src/aave-v3/external/IPool.sol";
+import {AaveV3ERC4626} from "../../src/aave-v3/AaveV3ERC4626.sol";
+import {RewardsControllerMock} from "./mocks/RewardsControllerMock.sol";
+import {AaveV3ERC4626Factory} from "../../src/aave-v3/AaveV3ERC4626Factory.sol";
+import {IRewardsController} from
+    "../../src/aave-v3/external/IRewardsController.sol";
 
-contract EulerERC4626Test is Test {
-    EulerMock public euler;
-    EulerERC4626 public vault;
+contract AaveV3ERC4626Test is Test {
+    address public constant rewardRecipient = address(0x01);
+
+    ERC20Mock public aave;
+    ERC20Mock public aToken;
+    AaveV3ERC4626 public vault;
     ERC20Mock public underlying;
-    EulerETokenMock public eToken;
-    EulerMarketsMock public markets;
-    EulerERC4626Factory public factory;
+    PoolMock public lendingPool;
+    AaveV3ERC4626Factory public factory;
+    IRewardsController public rewardsController;
 
     function setUp() public {
-        euler = new EulerMock();
+        aave = new ERC20Mock();
+        aToken = new ERC20Mock();
         underlying = new ERC20Mock();
-        eToken = new EulerETokenMock(underlying, euler);
-        markets = new EulerMarketsMock();
-        factory = new EulerERC4626Factory(address(euler), markets);
+        lendingPool = new PoolMock();
+        rewardsController = new RewardsControllerMock(address(aave));
+        factory =
+        new AaveV3ERC4626Factory(lendingPool, rewardRecipient, rewardsController);
 
-        markets.setETokenForUnderlying(address(underlying), address(eToken));
+        lendingPool.setReserveAToken(address(underlying), address(aToken));
 
-        vault = EulerERC4626(address(factory.createERC4626(underlying)));
+        vault = AaveV3ERC4626(address(factory.createERC4626(underlying)));
     }
 
     function testSingleDepositWithdraw(uint128 amount) public {
@@ -245,7 +252,8 @@ contract EulerERC4626Test is Test {
         // Alice share is 33.33% of the Vault, Bob 66.66% of the Vault.
         // Alice's share count stays the same but the underlying amount changes from 2000 to 3000.
         // Bob's share count stays the same but the underlying amount changes from 4000 to 6000.
-        underlying.mint(address(eToken), mutationUnderlyingAmount);
+        underlying.mint(address(lendingPool), mutationUnderlyingAmount);
+        aToken.mint(address(vault), mutationUnderlyingAmount);
         assertEq(vault.totalSupply(), preMutationShareBal);
         assertEq(vault.totalAssets(), preMutationBal + mutationUnderlyingAmount);
         assertEq(vault.balanceOf(alice), aliceShareAmount);
@@ -290,7 +298,8 @@ contract EulerERC4626Test is Test {
 
         // 6. Vault mutates by +3000 tokens
         // NOTE: Vault holds 17001 tokens, but sum of assetsOf() is 17000.
-        underlying.mint(address(eToken), mutationUnderlyingAmount);
+        underlying.mint(address(lendingPool), mutationUnderlyingAmount);
+        aToken.mint(address(vault), mutationUnderlyingAmount);
         assertEq(vault.totalAssets(), 17001);
         assertEq(vault.convertToAssets(vault.balanceOf(alice)), 6071);
         assertEq(vault.convertToAssets(vault.balanceOf(bob)), 10929);
@@ -459,5 +468,11 @@ contract EulerERC4626Test is Test {
         assertEq(vault.balanceOf(alice), 0);
         assertEq(vault.balanceOf(bob), 0);
         assertEq(underlying.balanceOf(alice), 1e18);
+    }
+
+    function test_claimRewards() public {
+        vault.claimRewards();
+
+        assertEqDecimal(aave.balanceOf(rewardRecipient), 1e18, 18);
     }
 }

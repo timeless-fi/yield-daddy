@@ -28,16 +28,9 @@ abstract contract ICERC20 is ERC20 {
         virtual
         returns (uint256);
 
-    function balanceOfUnderlying(address)
-        external
-        virtual
-        returns (uint256);
+    function balanceOfUnderlying(address) external virtual returns (uint256);
 
-    function reserveFactorMantissa()
-        external
-        view
-        virtual
-        returns (uint256);
+    function reserveFactorMantissa() external view virtual returns (uint256);
 
     function interestRateModel()
         external

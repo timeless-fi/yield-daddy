@@ -5,7 +5,7 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
 
 import {EulerMock} from "./EulerMock.sol";
-import {IEulerEToken} from "../../../euler/external/IEulerEToken.sol";
+import {IEulerEToken} from "../../../src/euler/external/IEulerEToken.sol";
 
 contract EulerETokenMock is
     IEulerEToken,

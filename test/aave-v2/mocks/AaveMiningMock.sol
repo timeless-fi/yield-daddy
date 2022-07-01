@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 // interfaces
 import {ERC20Mock} from "../../mocks/ERC20Mock.sol";
-import {IAaveMining} from "../../../aave-v2/external/IAaveMining.sol";
+import {IAaveMining} from "../../../src/aave-v2/external/IAaveMining.sol";
 
 contract AaveMiningMock is IAaveMining {
     uint256 public constant CLAIM_AMOUNT = 10 ** 18;

@@ -274,10 +274,10 @@ contract AaveV2ERC4626 is ERC4626 {
     /// -----------------------------------------------------------------------
 
     function _getActive(uint256 configData) internal pure returns (bool) {
-        return (configData & ~ACTIVE_MASK) != 0;
+        return configData & ~ACTIVE_MASK != 0;
     }
 
     function _getFrozen(uint256 configData) internal pure returns (bool) {
-        return (configData & ~FROZEN_MASK) != 0;
+        return configData & ~FROZEN_MASK != 0;
     }
 }

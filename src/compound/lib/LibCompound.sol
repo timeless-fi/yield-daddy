@@ -25,8 +25,8 @@ library LibCompound {
     {
         uint256 accrualBlockNumberPrior = cToken.accrualBlockNumber();
 
-        if (accrualBlockNumberPrior == block.number)
-        return cToken.exchangeRateStored();
+        if (accrualBlockNumberPrior == block.number) return cToken
+            .exchangeRateStored();
 
         uint256 totalCash = cToken.underlying().balanceOf(address(cToken));
         uint256 borrowsPrior = cToken.totalBorrows();
@@ -52,7 +52,7 @@ library LibCompound {
 
         return
             totalSupply == 0
-                ? cToken.initialExchangeRateMantissa()
-                : (totalCash + totalBorrows - totalReserves).divWadDown(totalSupply);
+            ? cToken.initialExchangeRateMantissa()
+            : totalCash + totalBorrows - totalReserves.divWadDown(totalSupply);
     }
 }

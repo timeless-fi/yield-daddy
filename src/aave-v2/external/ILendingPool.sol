@@ -5,7 +5,7 @@ pragma solidity ^0.8.4;
 // Documentation: https://docs.aave.com/developers/the-core-protocol/lendingpool/ilendingpool
 // refer to the whitepaper, section 1.1 basic concepts for a formal description of these properties.
 interface ILendingPool {
-    struct ReserveConfigurationMap
+    struct ReserveConfigurationMap {
     //bit 0-15: LTV
     //bit 16-31: Liq. threshold
     //bit 32-47: Liq. bonus
@@ -16,7 +16,6 @@ interface ILendingPool {
     //bit 59: stable rate borrowing enabled
     //bit 60-63: reserved
     //bit 64-79: reserve factor
-    {
         uint256 data;
     }
 
