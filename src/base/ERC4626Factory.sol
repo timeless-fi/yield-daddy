@@ -67,18 +67,13 @@ abstract contract ERC4626Factory {
         virtual
         returns (address)
     {
-        return
-            keccak256(
-                abi.encodePacked(
-                    // Prefix:
-                    bytes1(0xFF),
-                    // Creator:
-                    address(this),
-                    // Salt:
-                    bytes32(0),
-                    // Bytecode hash:
-                    bytecodeHash
-                )
-            ).fromLast20Bytes(); // Convert the CREATE2 hash into an address.
+        return keccak256(
+            abi.encodePacked(bytes1(0xFF), address(this), bytes32(0), bytecodeHash)
+        )
+            // Prefix:
+            // Creator:
+            // Salt:
+            // Bytecode hash:
+            .fromLast20Bytes(); // Convert the CREATE2 hash into an address.
     }
 }
