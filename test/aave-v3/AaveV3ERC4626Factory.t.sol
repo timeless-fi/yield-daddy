@@ -12,7 +12,8 @@ import {IPool} from "../../src/aave-v3/external/IPool.sol";
 import {AaveV3ERC4626} from "../../src/aave-v3/AaveV3ERC4626.sol";
 import {RewardsControllerMock} from "./mocks/RewardsControllerMock.sol";
 import {AaveV3ERC4626Factory} from "../../src/aave-v3/AaveV3ERC4626Factory.sol";
-import {IRewardsController} from "../../src/aave-v3/external/IRewardsController.sol";
+import {IRewardsController} from
+    "../../src/aave-v3/external/IRewardsController.sol";
 
 contract AaveV3ERC4626FactoryTest is Test {
     address public constant rewardRecipient = address(0x01);

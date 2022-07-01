@@ -10,7 +10,8 @@ import {ERC20Mock} from "../mocks/ERC20Mock.sol";
 import {ICERC20} from "../../src/compound/external/ICERC20.sol";
 import {CompoundERC4626} from "../../src/compound/CompoundERC4626.sol";
 import {IComptroller} from "../../src/compound/external/IComptroller.sol";
-import {CompoundERC4626Factory} from "../../src/compound/CompoundERC4626Factory.sol";
+import {CompoundERC4626Factory} from
+    "../../src/compound/CompoundERC4626Factory.sol";
 
 contract CompoundERC4626FactoryTest is Test {
     address constant rewardRecipient = address(0x01);

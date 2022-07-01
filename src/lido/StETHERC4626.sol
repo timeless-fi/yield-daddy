@@ -21,20 +21,19 @@ contract StETHERC4626 is ERC4626 {
     using FixedPointMathLib for uint256;
 
     /// -----------------------------------------------------------------------
-    /// Immutable params
-    /// -----------------------------------------------------------------------
-
-    /// @notice The Lido stETH contract
-    IStETH public immutable stETH;
-
-    /// -----------------------------------------------------------------------
     /// Constructor
     /// -----------------------------------------------------------------------
 
-    constructor(ERC20 asset_, IStETH stETH_)
+    constructor(ERC20 asset_)
         ERC4626(asset_, "ERC4626-Wrapped Lido stETH", "wlstETH")
-    {
-        stETH = stETH_;
+    {}
+
+    /// -----------------------------------------------------------------------
+    /// Getters
+    /// -----------------------------------------------------------------------
+
+    function stETH() public view returns (IStETH) {
+        return IStETH(address(asset));
     }
 
     /// -----------------------------------------------------------------------
@@ -42,7 +41,7 @@ contract StETHERC4626 is ERC4626 {
     /// -----------------------------------------------------------------------
 
     function totalAssets() public view virtual override returns (uint256) {
-        return stETH.balanceOf(address(this));
+        return stETH().balanceOf(address(this));
     }
 
     function convertToShares(uint256 assets)
@@ -52,12 +51,12 @@ contract StETHERC4626 is ERC4626 {
         override
         returns (uint256)
     {
-        uint256 supply = stETH.totalSupply();
+        uint256 supply = stETH().totalSupply();
 
         return
             supply == 0
             ? assets
-            : assets.mulDivDown(stETH.getTotalShares(), supply);
+            : assets.mulDivDown(stETH().getTotalShares(), supply);
     }
 
     function convertToAssets(uint256 shares)
@@ -67,12 +66,12 @@ contract StETHERC4626 is ERC4626 {
         override
         returns (uint256)
     {
-        uint256 totalShares = stETH.getTotalShares();
+        uint256 totalShares = stETH().getTotalShares();
 
         return
             totalShares == 0
             ? shares
-            : shares.mulDivDown(stETH.totalSupply(), totalShares);
+            : shares.mulDivDown(stETH().totalSupply(), totalShares);
     }
 
     function previewMint(uint256 shares)
@@ -82,12 +81,12 @@ contract StETHERC4626 is ERC4626 {
         override
         returns (uint256)
     {
-        uint256 totalShares = stETH.getTotalShares();
+        uint256 totalShares = stETH().getTotalShares();
 
         return
             totalShares == 0
             ? shares
-            : shares.mulDivUp(stETH.totalSupply(), totalShares);
+            : shares.mulDivUp(stETH().totalSupply(), totalShares);
     }
 
     function previewWithdraw(uint256 assets)
@@ -97,11 +96,11 @@ contract StETHERC4626 is ERC4626 {
         override
         returns (uint256)
     {
-        uint256 supply = stETH.totalSupply();
+        uint256 supply = stETH().totalSupply();
 
         return
             supply == 0
             ? assets
-            : assets.mulDivUp(stETH.getTotalShares(), supply);
+            : assets.mulDivUp(stETH().getTotalShares(), supply);
     }
 }
