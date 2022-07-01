@@ -9,10 +9,10 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 import {ERC20Mock} from "../mocks/ERC20Mock.sol";
 import {AaveMiningMock} from "./mocks/AaveMiningMock.sol";
 import {LendingPoolMock} from "./mocks/LendingPoolMock.sol";
-import {AaveV2ERC4626} from "../../src/aave-v2/AaveV2ERC4626.sol";
-import {IAaveMining} from "../../src/aave-v2/external/IAaveMining.sol";
-import {ILendingPool} from "../../src/aave-v2/external/ILendingPool.sol";
-import {AaveV2ERC4626Factory} from "../../src/aave-v2/AaveV2ERC4626Factory.sol";
+import {AaveV2ERC4626} from "../../aave-v2/AaveV2ERC4626.sol";
+import {IAaveMining} from "../../aave-v2/external/IAaveMining.sol";
+import {ILendingPool} from "../../aave-v2/external/ILendingPool.sol";
+import {AaveV2ERC4626Factory} from "../../aave-v2/AaveV2ERC4626Factory.sol";
 
 contract AaveV2ERC4626FactoryTest is Test {
     address public constant rewardRecipient = address(0x01);

@@ -8,10 +8,10 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 
 import {EulerMock} from "./mocks/EulerMock.sol";
 import {ERC20Mock} from "../mocks/ERC20Mock.sol";
-import {EulerERC4626} from "../../src/euler/EulerERC4626.sol";
+import {EulerERC4626} from "../../euler/EulerERC4626.sol";
 import {EulerETokenMock} from "./mocks/EulerETokenMock.sol";
 import {EulerMarketsMock} from "./mocks/EulerMarketsMock.sol";
-import {EulerERC4626Factory} from "../../src/euler/EulerERC4626Factory.sol";
+import {EulerERC4626Factory} from "../../euler/EulerERC4626Factory.sol";
 
 contract EulerERC4626FactoryTest is Test {
     EulerMock public euler;

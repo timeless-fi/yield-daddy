@@ -4,7 +4,7 @@ pragma solidity ^0.8.4;
 import {ERC20} from "solmate/tokens/ERC20.sol";
 
 import {ERC20Mock} from "../../mocks/ERC20Mock.sol";
-import {ILendingPool} from "../../../src/aave-v2/external/ILendingPool.sol";
+import {ILendingPool} from "../../../aave-v2/external/ILendingPool.sol";
 
 contract LendingPoolMock is ILendingPool {
     mapping(address => address) internal reserveAToken;
