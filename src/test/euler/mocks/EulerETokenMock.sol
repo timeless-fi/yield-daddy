@@ -7,10 +7,7 @@ import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
 import {EulerMock} from "./EulerMock.sol";
 import {IEulerEToken} from "../../../euler/external/IEulerEToken.sol";
 
-contract EulerETokenMock is
-    IEulerEToken,
-    ERC20("EulerETokenMock", "eMOCK", 18)
-{
+contract EulerETokenMock is IEulerEToken, ERC20("EulerETokenMock", "eMOCK", 18) {
     using FixedPointMathLib for uint256;
 
     EulerMock public euler;
@@ -21,11 +18,7 @@ contract EulerETokenMock is
         underlying = underlying_;
     }
 
-    function balanceOfUnderlying(address account)
-        external
-        view
-        returns (uint256)
-    {
+    function balanceOfUnderlying(address account) external view returns (uint256) {
         uint256 supply = totalSupply; // Saves an extra SLOAD if totalSupply is non-zero.
         uint256 shares = balanceOf[account];
 
@@ -48,23 +41,13 @@ contract EulerETokenMock is
         underlying.transfer(msg.sender, amount);
     }
 
-    function convertToShares(uint256 assets)
-        public
-        view
-        virtual
-        returns (uint256)
-    {
+    function convertToShares(uint256 assets) public view virtual returns (uint256) {
         uint256 supply = totalSupply; // Saves an extra SLOAD if totalSupply is non-zero.
 
         return supply == 0 ? assets : assets.mulDivDown(supply, totalAssets());
     }
 
-    function previewWithdraw(uint256 assets)
-        public
-        view
-        virtual
-        returns (uint256)
-    {
+    function previewWithdraw(uint256 assets) public view virtual returns (uint256) {
         uint256 supply = totalSupply; // Saves an extra SLOAD if totalSupply is non-zero.
 
         return supply == 0 ? assets : assets.mulDivUp(supply, totalAssets());

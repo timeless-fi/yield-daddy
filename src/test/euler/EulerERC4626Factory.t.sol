@@ -31,29 +31,21 @@ contract EulerERC4626FactoryTest is Test {
     }
 
     function test_createERC4626() public {
-        EulerERC4626 vault =
-            EulerERC4626(address(factory.createERC4626(underlying)));
+        EulerERC4626 vault = EulerERC4626(address(factory.createERC4626(underlying)));
 
         assertEq(address(vault.eToken()), address(eToken), "eToken incorrect");
         assertEq(address(vault.euler()), address(euler), "euler incorrect");
     }
 
     function test_computeERC4626Address() public {
-        EulerERC4626 vault =
-            EulerERC4626(address(factory.createERC4626(underlying)));
+        EulerERC4626 vault = EulerERC4626(address(factory.createERC4626(underlying)));
 
-        assertEq(
-            address(factory.computeERC4626Address(underlying)),
-            address(vault),
-            "computed vault address incorrect"
-        );
+        assertEq(address(factory.computeERC4626Address(underlying)), address(vault), "computed vault address incorrect");
     }
 
     function test_fail_createERC4626ForAssetWithoutEToken() public {
         ERC20Mock fakeAsset = new ERC20Mock();
-        vm.expectRevert(
-            abi.encodeWithSignature("EulerERC4626Factory__ETokenNonexistent()")
-        );
+        vm.expectRevert(abi.encodeWithSignature("EulerERC4626Factory__ETokenNonexistent()"));
         factory.createERC4626(fakeAsset);
     }
 }

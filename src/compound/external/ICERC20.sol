@@ -6,10 +6,7 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 import {IInterestRateModel} from "./IInterestRateModel.sol";
 
 abstract contract ICERC20 is ERC20 {
-    function mint(uint256 underlyingAmount)
-        external
-        virtual
-        returns (uint256);
+    function mint(uint256 underlyingAmount) external virtual returns (uint256);
 
     function underlying() external view virtual returns (ERC20);
 
@@ -23,24 +20,13 @@ abstract contract ICERC20 is ERC20 {
 
     function accrualBlockNumber() external view virtual returns (uint256);
 
-    function redeemUnderlying(uint256 underlyingAmount)
-        external
-        virtual
-        returns (uint256);
+    function redeemUnderlying(uint256 underlyingAmount) external virtual returns (uint256);
 
     function balanceOfUnderlying(address) external virtual returns (uint256);
 
     function reserveFactorMantissa() external view virtual returns (uint256);
 
-    function interestRateModel()
-        external
-        view
-        virtual
-        returns (IInterestRateModel);
+    function interestRateModel() external view virtual returns (IInterestRateModel);
 
-    function initialExchangeRateMantissa()
-        external
-        view
-        virtual
-        returns (uint256);
+    function initialExchangeRateMantissa() external view virtual returns (uint256);
 }

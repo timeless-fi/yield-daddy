@@ -24,9 +24,7 @@ contract StETHERC4626 is ERC4626 {
     /// Constructor
     /// -----------------------------------------------------------------------
 
-    constructor(ERC20 asset_)
-        ERC4626(asset_, "ERC4626-Wrapped Lido stETH", "wlstETH")
-    {}
+    constructor(ERC20 asset_) ERC4626(asset_, "ERC4626-Wrapped Lido stETH", "wlstETH") {}
 
     /// -----------------------------------------------------------------------
     /// Getters
@@ -44,63 +42,27 @@ contract StETHERC4626 is ERC4626 {
         return stETH().balanceOf(address(this));
     }
 
-    function convertToShares(uint256 assets)
-        public
-        view
-        virtual
-        override
-        returns (uint256)
-    {
+    function convertToShares(uint256 assets) public view virtual override returns (uint256) {
         uint256 supply = stETH().totalSupply();
 
-        return
-            supply == 0
-            ? assets
-            : assets.mulDivDown(stETH().getTotalShares(), supply);
+        return supply == 0 ? assets : assets.mulDivDown(stETH().getTotalShares(), supply);
     }
 
-    function convertToAssets(uint256 shares)
-        public
-        view
-        virtual
-        override
-        returns (uint256)
-    {
+    function convertToAssets(uint256 shares) public view virtual override returns (uint256) {
         uint256 totalShares = stETH().getTotalShares();
 
-        return
-            totalShares == 0
-            ? shares
-            : shares.mulDivDown(stETH().totalSupply(), totalShares);
+        return totalShares == 0 ? shares : shares.mulDivDown(stETH().totalSupply(), totalShares);
     }
 
-    function previewMint(uint256 shares)
-        public
-        view
-        virtual
-        override
-        returns (uint256)
-    {
+    function previewMint(uint256 shares) public view virtual override returns (uint256) {
         uint256 totalShares = stETH().getTotalShares();
 
-        return
-            totalShares == 0
-            ? shares
-            : shares.mulDivUp(stETH().totalSupply(), totalShares);
+        return totalShares == 0 ? shares : shares.mulDivUp(stETH().totalSupply(), totalShares);
     }
 
-    function previewWithdraw(uint256 assets)
-        public
-        view
-        virtual
-        override
-        returns (uint256)
-    {
+    function previewWithdraw(uint256 assets) public view virtual override returns (uint256) {
         uint256 supply = stETH().totalSupply();
 
-        return
-            supply == 0
-            ? assets
-            : assets.mulDivUp(stETH().getTotalShares(), supply);
+        return supply == 0 ? assets : assets.mulDivUp(stETH().getTotalShares(), supply);
     }
 }

@@ -10,16 +10,11 @@ contract LendingPoolMock is ILendingPool {
     mapping(address => address) internal reserveAToken;
     bool public override paused;
 
-    function setReserveAToken(address _reserve, address _aTokenAddress)
-        external
-    {
+    function setReserveAToken(address _reserve, address _aTokenAddress) external {
         reserveAToken[_reserve] = _aTokenAddress;
     }
 
-    function deposit(address asset, uint256 amount, address onBehalfOf, uint16)
-        external
-        override
-    {
+    function deposit(address asset, uint256 amount, address onBehalfOf, uint16) external override {
         require(!paused, "PAUSED");
 
         // Transfer asset
@@ -32,11 +27,7 @@ contract LendingPoolMock is ILendingPool {
         aToken.mint(onBehalfOf, amount);
     }
 
-    function withdraw(address asset, uint256 amount, address to)
-        external
-        override
-        returns (uint256)
-    {
+    function withdraw(address asset, uint256 amount, address to) external override returns (uint256) {
         require(!paused, "PAUSED");
 
         // Burn aTokens
@@ -50,12 +41,7 @@ contract LendingPoolMock is ILendingPool {
         return amount;
     }
 
-    function getReserveData(address asset)
-        external
-        view
-        override
-        returns (ILendingPool.ReserveData memory data)
-    {
+    function getReserveData(address asset) external view override returns (ILendingPool.ReserveData memory data) {
         data.aTokenAddress = reserveAToken[asset];
     }
 

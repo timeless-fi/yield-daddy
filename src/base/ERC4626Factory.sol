@@ -35,20 +35,13 @@ abstract contract ERC4626Factory {
     /// vault for each asset. Will revert if a vault has already been deployed for the asset.
     /// @param asset The base asset used by the vault
     /// @return vault The vault that was created
-    function createERC4626(ERC20 asset)
-        external
-        virtual
-        returns (ERC4626 vault);
+    function createERC4626(ERC20 asset) external virtual returns (ERC4626 vault);
 
     /// @notice Computes the address of the ERC4626 vault corresponding to an asset. Returns
     /// a valid result regardless of whether the vault has already been deployed.
     /// @param asset The base asset used by the vault
     /// @return vault The vault corresponding to the asset
-    function computeERC4626Address(ERC20 asset)
-        external
-        view
-        virtual
-        returns (ERC4626 vault);
+    function computeERC4626Address(ERC20 asset) external view virtual returns (ERC4626 vault);
 
     /// -----------------------------------------------------------------------
     /// Internal functions
@@ -61,15 +54,8 @@ abstract contract ERC4626Factory {
     /// @param bytecodeHash The keccak256 hash of the creation code of the contract being deployed concatenated
     /// with the ABI-encoded constructor arguments.
     /// @return The address of the deployed contract
-    function _computeCreate2Address(bytes32 bytecodeHash)
-        internal
-        view
-        virtual
-        returns (address)
-    {
-        return keccak256(
-            abi.encodePacked(bytes1(0xFF), address(this), bytes32(0), bytecodeHash)
-        )
+    function _computeCreate2Address(bytes32 bytecodeHash) internal view virtual returns (address) {
+        return keccak256(abi.encodePacked(bytes1(0xFF), address(this), bytes32(0), bytecodeHash))
             // Prefix:
             // Creator:
             // Salt:

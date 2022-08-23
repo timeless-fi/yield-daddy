@@ -3,8 +3,7 @@ pragma solidity ^0.8.4;
 
 // interfaces
 import {ERC20Mock} from "../../mocks/ERC20Mock.sol";
-import {IRewardsController} from
-    "../../../aave-v3/external/IRewardsController.sol";
+import {IRewardsController} from "../../../aave-v3/external/IRewardsController.sol";
 
 contract RewardsControllerMock is IRewardsController {
     uint256 public constant CLAIM_AMOUNT = 10 ** 18;

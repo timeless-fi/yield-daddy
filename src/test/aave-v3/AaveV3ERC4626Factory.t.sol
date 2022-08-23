@@ -12,8 +12,7 @@ import {IPool} from "../../aave-v3/external/IPool.sol";
 import {AaveV3ERC4626} from "../../aave-v3/AaveV3ERC4626.sol";
 import {RewardsControllerMock} from "./mocks/RewardsControllerMock.sol";
 import {AaveV3ERC4626Factory} from "../../aave-v3/AaveV3ERC4626Factory.sol";
-import {IRewardsController} from
-    "../../aave-v3/external/IRewardsController.sol";
+import {IRewardsController} from "../../aave-v3/external/IRewardsController.sol";
 
 contract AaveV3ERC4626FactoryTest is Test {
     address public constant rewardRecipient = address(0x01);
@@ -31,50 +30,29 @@ contract AaveV3ERC4626FactoryTest is Test {
         underlying = new ERC20Mock();
         lendingPool = new PoolMock();
         rewardsController = new RewardsControllerMock(address(aave));
-        factory =
-        new AaveV3ERC4626Factory(lendingPool, rewardRecipient, rewardsController);
+        factory = new AaveV3ERC4626Factory(lendingPool, rewardRecipient, rewardsController);
 
         lendingPool.setReserveAToken(address(underlying), address(aToken));
     }
 
     function test_createERC4626() public {
-        AaveV3ERC4626 vault =
-            AaveV3ERC4626(address(factory.createERC4626(underlying)));
+        AaveV3ERC4626 vault = AaveV3ERC4626(address(factory.createERC4626(underlying)));
 
         assertEq(address(vault.aToken()), address(aToken), "aToken incorrect");
-        assertEq(
-            address(vault.lendingPool()),
-            address(lendingPool),
-            "lendingPool incorrect"
-        );
-        assertEq(
-            address(vault.rewardsController()),
-            address(rewardsController),
-            "rewardsController incorrect"
-        );
-        assertEq(
-            address(vault.rewardRecipient()),
-            address(rewardRecipient),
-            "rewardRecipient incorrect"
-        );
+        assertEq(address(vault.lendingPool()), address(lendingPool), "lendingPool incorrect");
+        assertEq(address(vault.rewardsController()), address(rewardsController), "rewardsController incorrect");
+        assertEq(address(vault.rewardRecipient()), address(rewardRecipient), "rewardRecipient incorrect");
     }
 
     function test_computeERC4626Address() public {
-        AaveV3ERC4626 vault =
-            AaveV3ERC4626(address(factory.createERC4626(underlying)));
+        AaveV3ERC4626 vault = AaveV3ERC4626(address(factory.createERC4626(underlying)));
 
-        assertEq(
-            address(factory.computeERC4626Address(underlying)),
-            address(vault),
-            "computed vault address incorrect"
-        );
+        assertEq(address(factory.computeERC4626Address(underlying)), address(vault), "computed vault address incorrect");
     }
 
     function test_fail_createERC4626ForAssetWithoutAToken() public {
         ERC20Mock fakeAsset = new ERC20Mock();
-        vm.expectRevert(
-            abi.encodeWithSignature("AaveV3ERC4626Factory__ATokenNonexistent()")
-        );
+        vm.expectRevert(abi.encodeWithSignature("AaveV3ERC4626Factory__ATokenNonexistent()"));
         factory.createERC4626(fakeAsset);
     }
 }

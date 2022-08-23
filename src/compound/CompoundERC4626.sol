@@ -54,13 +54,7 @@ contract CompoundERC4626 is ERC4626 {
     /// Constructor
     /// -----------------------------------------------------------------------
 
-    constructor(
-        ERC20 asset_,
-        ERC20 comp_,
-        ICERC20 cToken_,
-        address rewardRecipient_,
-        IComptroller comptroller_
-    )
+    constructor(ERC20 asset_, ERC20 comp_, ICERC20 cToken_, address rewardRecipient_, IComptroller comptroller_)
         ERC4626(asset_, _vaultName(asset_), _vaultSymbol(asset_))
     {
         comp = comp_;
@@ -89,11 +83,7 @@ contract CompoundERC4626 is ERC4626 {
         return cToken.viewUnderlyingBalanceOf(address(this));
     }
 
-    function beforeWithdraw(uint256 assets, uint256 /*shares*/ )
-        internal
-        virtual
-        override
-    {
+    function beforeWithdraw(uint256 assets, uint256 /*shares*/ ) internal virtual override {
         /// -----------------------------------------------------------------------
         /// Withdraw assets from Compound
         /// -----------------------------------------------------------------------
@@ -104,11 +94,7 @@ contract CompoundERC4626 is ERC4626 {
         }
     }
 
-    function afterDeposit(uint256 assets, uint256 /*shares*/ )
-        internal
-        virtual
-        override
-    {
+    function afterDeposit(uint256 assets, uint256 /*shares*/ ) internal virtual override {
         /// -----------------------------------------------------------------------
         /// Deposit assets into Compound
         /// -----------------------------------------------------------------------
@@ -124,32 +110,26 @@ contract CompoundERC4626 is ERC4626 {
     }
 
     function maxDeposit(address) public view override returns (uint256) {
-        if (comptroller.mintGuardianPaused(cToken)) return 0;
+        if (comptroller.mintGuardianPaused(cToken)) {
+            return 0;
+        }
         return type(uint256).max;
     }
 
     function maxMint(address) public view override returns (uint256) {
-        if (comptroller.mintGuardianPaused(cToken)) return 0;
+        if (comptroller.mintGuardianPaused(cToken)) {
+            return 0;
+        }
         return type(uint256).max;
     }
 
-    function maxWithdraw(address owner)
-        public
-        view
-        override
-        returns (uint256)
-    {
+    function maxWithdraw(address owner) public view override returns (uint256) {
         uint256 cash = cToken.getCash();
         uint256 assetsBalance = convertToAssets(balanceOf[owner]);
         return cash < assetsBalance ? cash : assetsBalance;
     }
 
-    function maxRedeem(address owner)
-        public
-        view
-        override
-        returns (uint256)
-    {
+    function maxRedeem(address owner) public view override returns (uint256) {
         uint256 cash = cToken.getCash();
         uint256 cashInShares = convertToShares(cash);
         uint256 shareBalance = balanceOf[owner];
@@ -160,21 +140,11 @@ contract CompoundERC4626 is ERC4626 {
     /// ERC20 metadata generation
     /// -----------------------------------------------------------------------
 
-    function _vaultName(ERC20 asset_)
-        internal
-        view
-        virtual
-        returns (string memory vaultName)
-    {
+    function _vaultName(ERC20 asset_) internal view virtual returns (string memory vaultName) {
         vaultName = string.concat("ERC4626-Wrapped Compound ", asset_.symbol());
     }
 
-    function _vaultSymbol(ERC20 asset_)
-        internal
-        view
-        virtual
-        returns (string memory vaultSymbol)
-    {
+    function _vaultSymbol(ERC20 asset_) internal view virtual returns (string memory vaultSymbol) {
         vaultSymbol = string.concat("wc", asset_.symbol());
     }
 }

@@ -4,10 +4,7 @@ pragma solidity ^0.8.13;
 /// @notice Tokenised representation of assets
 interface IEulerEToken {
     /// @notice Balance of a particular account, in underlying units (increases as interest is earned)
-    function balanceOfUnderlying(address account)
-        external
-        view
-        returns (uint256);
+    function balanceOfUnderlying(address account) external view returns (uint256);
 
     /// @notice Transfer underlying tokens from sender to the Euler pool, and increase account's eTokens
     /// @param subAccountId 0 for primary, 1-255 for a sub-account

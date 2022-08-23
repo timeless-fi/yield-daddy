@@ -13,11 +13,7 @@ contract AaveMiningMock is IAaveMining {
         aave = ERC20Mock(_aave);
     }
 
-    function claimRewards(
-        address[] calldata, /*assets*/
-        uint256, /*amount*/
-        address to
-    )
+    function claimRewards(address[] calldata, /*assets*/ uint256, /*amount*/ address to)
         external
         override
         returns (uint256)

@@ -14,8 +14,7 @@ import {StETHERC4626} from "../../lido/StETHERC4626.sol";
 contract StETHERC4626Test is Test {
     ERC20 constant underlying = stETH;
     IStETH constant stETH = IStETH(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84);
-    IWStETH constant wstETH =
-        IWStETH(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0);
+    IWStETH constant wstETH = IWStETH(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0);
 
     StETHERC4626 public vault;
 
@@ -28,10 +27,7 @@ contract StETHERC4626Test is Test {
         vm.label(address(0xDCBA), "Bob");
     }
 
-    function mintUnderlying(address to, uint256 amount)
-        internal
-        returns (uint256)
-    {
+    function mintUnderlying(address to, uint256 amount) internal returns (uint256) {
         uint256 wstETHAmount = wstETH.getWstETHByStETH(amount);
         deal(address(wstETH), to, wstETHAmount * 2);
         vm.prank(to);
@@ -40,7 +36,9 @@ contract StETHERC4626Test is Test {
     }
 
     function testSingleDepositWithdraw(uint64 amount) public {
-        if (amount < 1e9) amount = 1e9;
+        if (amount < 1e9) {
+            amount = 1e9;
+        }
 
         uint256 aliceUnderlyingAmount = amount;
 
@@ -50,39 +48,21 @@ contract StETHERC4626Test is Test {
 
         vm.prank(alice);
         underlying.approve(address(vault), aliceUnderlyingAmount);
-        assertEq(
-            underlying.allowance(alice, address(vault)), aliceUnderlyingAmount
-        );
+        assertEq(underlying.allowance(alice, address(vault)), aliceUnderlyingAmount);
 
         uint256 alicePreDepositBal = underlying.balanceOf(alice);
 
         vm.prank(alice);
         uint256 aliceShareAmount = vault.deposit(aliceUnderlyingAmount, alice);
 
-        assertGe(
-            vault.previewWithdraw(aliceUnderlyingAmount),
-            aliceShareAmount,
-            "previewWithdraw"
-        );
-        assertEq(
-            vault.previewDeposit(aliceUnderlyingAmount),
-            aliceShareAmount,
-            "previewDeposit"
-        );
+        assertGe(vault.previewWithdraw(aliceUnderlyingAmount), aliceShareAmount, "previewWithdraw");
+        assertEq(vault.previewDeposit(aliceUnderlyingAmount), aliceShareAmount, "previewDeposit");
         assertEq(vault.totalSupply(), aliceShareAmount, "totalSupply");
         assertGe(vault.totalAssets(), aliceUnderlyingAmount - 2, "totalAssets");
+        assertLe(vault.balanceOf(alice), aliceShareAmount, "vault.balanceOf(alice)");
+        assertLe(vault.convertToAssets(vault.balanceOf(alice)), aliceUnderlyingAmount, "convertToAssets");
         assertLe(
-            vault.balanceOf(alice), aliceShareAmount, "vault.balanceOf(alice)"
-        );
-        assertLe(
-            vault.convertToAssets(vault.balanceOf(alice)),
-            aliceUnderlyingAmount,
-            "convertToAssets"
-        );
-        assertLe(
-            underlying.balanceOf(alice),
-            alicePreDepositBal + 2 - aliceUnderlyingAmount,
-            "underlying.balanceOf(alice)"
+            underlying.balanceOf(alice), alicePreDepositBal + 2 - aliceUnderlyingAmount, "underlying.balanceOf(alice)"
         );
 
         aliceUnderlyingAmount = vault.previewRedeem(vault.balanceOf(alice));
@@ -91,20 +71,14 @@ contract StETHERC4626Test is Test {
 
         assertLe(vault.totalAssets(), 1, "totalAssets");
         assertEq(vault.balanceOf(alice), 0, "vault.balanceOf(alice)");
-        assertEq(
-            vault.convertToAssets(vault.balanceOf(alice)),
-            0,
-            "vault.convertToAssets(vault.balanceOf(alice))"
-        );
-        assertGe(
-            underlying.balanceOf(alice),
-            alicePreDepositBal - 2,
-            "underlying.balanceOf(alice)"
-        );
+        assertEq(vault.convertToAssets(vault.balanceOf(alice)), 0, "vault.convertToAssets(vault.balanceOf(alice))");
+        assertGe(underlying.balanceOf(alice), alicePreDepositBal - 2, "underlying.balanceOf(alice)");
     }
 
     function testSingleMintRedeem(uint64 amount) public {
-        if (amount < 1e9) amount = 1e9;
+        if (amount < 1e9) {
+            amount = 1e9;
+        }
 
         uint256 aliceShareAmount = amount;
 
@@ -120,30 +94,14 @@ contract StETHERC4626Test is Test {
         vm.prank(alice);
         uint256 aliceUnderlyingAmount = vault.mint(aliceShareAmount, alice);
 
-        assertGe(
-            vault.previewWithdraw(aliceUnderlyingAmount),
-            aliceShareAmount,
-            "previewWithdraw"
-        );
-        assertEq(
-            vault.previewDeposit(aliceUnderlyingAmount),
-            aliceShareAmount,
-            "previewDeposit"
-        );
+        assertGe(vault.previewWithdraw(aliceUnderlyingAmount), aliceShareAmount, "previewWithdraw");
+        assertEq(vault.previewDeposit(aliceUnderlyingAmount), aliceShareAmount, "previewDeposit");
         assertEq(vault.totalSupply(), aliceShareAmount, "totalSupply");
         assertGe(vault.totalAssets(), aliceUnderlyingAmount - 1, "totalAssets");
+        assertLe(vault.balanceOf(alice), aliceShareAmount, "vault.balanceOf(alice)");
+        assertLe(vault.convertToAssets(vault.balanceOf(alice)), aliceUnderlyingAmount, "convertToAssets");
         assertLe(
-            vault.balanceOf(alice), aliceShareAmount, "vault.balanceOf(alice)"
-        );
-        assertLe(
-            vault.convertToAssets(vault.balanceOf(alice)),
-            aliceUnderlyingAmount,
-            "convertToAssets"
-        );
-        assertLe(
-            underlying.balanceOf(alice),
-            alicePreDepositBal + 1 - aliceUnderlyingAmount,
-            "underlying.balanceOf(alice)"
+            underlying.balanceOf(alice), alicePreDepositBal + 1 - aliceUnderlyingAmount, "underlying.balanceOf(alice)"
         );
 
         vm.prank(alice);
@@ -151,16 +109,8 @@ contract StETHERC4626Test is Test {
 
         assertLe(vault.totalAssets(), 1, "totalAssets");
         assertEq(vault.balanceOf(alice), 0, "vault.balanceOf(alice)");
-        assertEq(
-            vault.convertToAssets(vault.balanceOf(alice)),
-            0,
-            "vault.convertToAssets(vault.balanceOf(alice))"
-        );
-        assertGe(
-            underlying.balanceOf(alice),
-            alicePreDepositBal - 2,
-            "underlying.balanceOf(alice)"
-        );
+        assertEq(vault.convertToAssets(vault.balanceOf(alice)), 0, "vault.convertToAssets(vault.balanceOf(alice))");
+        assertGe(underlying.balanceOf(alice), alicePreDepositBal - 2, "underlying.balanceOf(alice)");
     }
 
     function testFailDepositWithNotEnoughApproval() public {

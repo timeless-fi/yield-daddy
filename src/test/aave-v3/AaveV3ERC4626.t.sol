@@ -12,8 +12,7 @@ import {IPool} from "../../aave-v3/external/IPool.sol";
 import {AaveV3ERC4626} from "../../aave-v3/AaveV3ERC4626.sol";
 import {RewardsControllerMock} from "./mocks/RewardsControllerMock.sol";
 import {AaveV3ERC4626Factory} from "../../aave-v3/AaveV3ERC4626Factory.sol";
-import {IRewardsController} from
-    "../../aave-v3/external/IRewardsController.sol";
+import {IRewardsController} from "../../aave-v3/external/IRewardsController.sol";
 
 contract AaveV3ERC4626Test is Test {
     address public constant rewardRecipient = address(0x01);
@@ -32,8 +31,7 @@ contract AaveV3ERC4626Test is Test {
         underlying = new ERC20Mock();
         lendingPool = new PoolMock();
         rewardsController = new RewardsControllerMock(address(aave));
-        factory =
-        new AaveV3ERC4626Factory(lendingPool, rewardRecipient, rewardsController);
+        factory = new AaveV3ERC4626Factory(lendingPool, rewardRecipient, rewardsController);
 
         lendingPool.setReserveAToken(address(underlying), address(aToken));
 
@@ -41,7 +39,9 @@ contract AaveV3ERC4626Test is Test {
     }
 
     function testSingleDepositWithdraw(uint128 amount) public {
-        if (amount == 0) amount = 1;
+        if (amount == 0) {
+            amount = 1;
+        }
 
         uint256 aliceUnderlyingAmount = amount;
 
@@ -51,9 +51,7 @@ contract AaveV3ERC4626Test is Test {
 
         vm.prank(alice);
         underlying.approve(address(vault), aliceUnderlyingAmount);
-        assertEq(
-            underlying.allowance(alice, address(vault)), aliceUnderlyingAmount
-        );
+        assertEq(underlying.allowance(alice, address(vault)), aliceUnderlyingAmount);
 
         uint256 alicePreDepositBal = underlying.balanceOf(alice);
 
@@ -67,12 +65,8 @@ contract AaveV3ERC4626Test is Test {
         assertEq(vault.totalSupply(), aliceShareAmount);
         assertEq(vault.totalAssets(), aliceUnderlyingAmount);
         assertEq(vault.balanceOf(alice), aliceShareAmount);
-        assertEq(
-            vault.convertToAssets(vault.balanceOf(alice)), aliceUnderlyingAmount
-        );
-        assertEq(
-            underlying.balanceOf(alice), alicePreDepositBal - aliceUnderlyingAmount
-        );
+        assertEq(vault.convertToAssets(vault.balanceOf(alice)), aliceUnderlyingAmount);
+        assertEq(underlying.balanceOf(alice), alicePreDepositBal - aliceUnderlyingAmount);
 
         vm.prank(alice);
         vault.withdraw(aliceUnderlyingAmount, alice, alice);
@@ -84,7 +78,9 @@ contract AaveV3ERC4626Test is Test {
     }
 
     function testSingleMintRedeem(uint128 amount) public {
-        if (amount == 0) amount = 1;
+        if (amount == 0) {
+            amount = 1;
+        }
 
         uint256 aliceShareAmount = amount;
 
@@ -108,12 +104,8 @@ contract AaveV3ERC4626Test is Test {
         assertEq(vault.totalSupply(), aliceShareAmount);
         assertEq(vault.totalAssets(), aliceUnderlyingAmount);
         assertEq(vault.balanceOf(alice), aliceUnderlyingAmount);
-        assertEq(
-            vault.convertToAssets(vault.balanceOf(alice)), aliceUnderlyingAmount
-        );
-        assertEq(
-            underlying.balanceOf(alice), alicePreDepositBal - aliceUnderlyingAmount
-        );
+        assertEq(vault.convertToAssets(vault.balanceOf(alice)), aliceUnderlyingAmount);
+        assertEq(underlying.balanceOf(alice), alicePreDepositBal - aliceUnderlyingAmount);
 
         vm.prank(alice);
         vault.redeem(aliceShareAmount, alice, alice);
@@ -206,12 +198,8 @@ contract AaveV3ERC4626Test is Test {
         // Expect to have received the requested mint amount.
         assertEq(aliceShareAmount, 2000);
         assertEq(vault.balanceOf(alice), aliceShareAmount);
-        assertEq(
-            vault.convertToAssets(vault.balanceOf(alice)), aliceUnderlyingAmount
-        );
-        assertEq(
-            vault.convertToShares(aliceUnderlyingAmount), vault.balanceOf(alice)
-        );
+        assertEq(vault.convertToAssets(vault.balanceOf(alice)), aliceUnderlyingAmount);
+        assertEq(vault.convertToShares(aliceUnderlyingAmount), vault.balanceOf(alice));
 
         // Expect a 1:1 ratio before mutation.
         assertEq(aliceUnderlyingAmount, 2000);
@@ -228,12 +216,8 @@ contract AaveV3ERC4626Test is Test {
         // Expect to have received the requested underlying amount.
         assertEq(bobUnderlyingAmount, 4000);
         assertEq(vault.balanceOf(bob), bobShareAmount);
-        assertEq(
-            vault.convertToAssets(vault.balanceOf(bob)), bobUnderlyingAmount
-        );
-        assertEq(
-            vault.convertToShares(bobUnderlyingAmount), vault.balanceOf(bob)
-        );
+        assertEq(vault.convertToAssets(vault.balanceOf(bob)), bobUnderlyingAmount);
+        assertEq(vault.convertToShares(bobUnderlyingAmount), vault.balanceOf(bob));
 
         // Expect a 1:1 ratio before mutation.
         assertEq(bobShareAmount, bobUnderlyingAmount);
@@ -258,14 +242,10 @@ contract AaveV3ERC4626Test is Test {
         assertEq(vault.totalAssets(), preMutationBal + mutationUnderlyingAmount);
         assertEq(vault.balanceOf(alice), aliceShareAmount);
         assertEq(
-            vault.convertToAssets(vault.balanceOf(alice)),
-            aliceUnderlyingAmount + mutationUnderlyingAmount / 3 * 1
+            vault.convertToAssets(vault.balanceOf(alice)), aliceUnderlyingAmount + mutationUnderlyingAmount / 3 * 1
         );
         assertEq(vault.balanceOf(bob), bobShareAmount);
-        assertEq(
-            vault.convertToAssets(vault.balanceOf(bob)),
-            bobUnderlyingAmount + mutationUnderlyingAmount / 3 * 2
-        );
+        assertEq(vault.convertToAssets(vault.balanceOf(bob)), bobUnderlyingAmount + mutationUnderlyingAmount / 3 * 2);
 
         // 4. Alice deposits 2000 tokens (mints 1333 shares)
         vm.prank(alice);

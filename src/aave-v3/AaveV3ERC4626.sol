@@ -27,16 +27,11 @@ contract AaveV3ERC4626 is ERC4626 {
     /// Constants
     /// -----------------------------------------------------------------------
 
-    uint256 internal constant DECIMALS_MASK =
-        0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00FFFFFFFFFFFF;
-    uint256 internal constant ACTIVE_MASK =
-        0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFF;
-    uint256 internal constant FROZEN_MASK =
-        0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDFFFFFFFFFFFFFF;
-    uint256 internal constant PAUSED_MASK =
-        0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFF;
-    uint256 internal constant SUPPLY_CAP_MASK =
-        0xFFFFFFFFFFFFFFFFFFFFFFFFFF000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+    uint256 internal constant DECIMALS_MASK = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00FFFFFFFFFFFF;
+    uint256 internal constant ACTIVE_MASK = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFF;
+    uint256 internal constant FROZEN_MASK = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDFFFFFFFFFFFFFF;
+    uint256 internal constant PAUSED_MASK = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFF;
+    uint256 internal constant SUPPLY_CAP_MASK = 0xFFFFFFFFFFFFFFFFFFFFFFFFFF000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
 
     uint256 internal constant SUPPLY_CAP_START_BIT_POSITION = 116;
     uint256 internal constant RESERVE_DECIMALS_START_BIT_POSITION = 48;
@@ -102,8 +97,9 @@ contract AaveV3ERC4626 is ERC4626 {
         if (msg.sender != owner) {
             uint256 allowed = allowance[owner][msg.sender]; // Saves gas for limited approvals.
 
-            if (allowed != type(uint256).max) allowance[owner][msg.sender] =
-                allowed - shares;
+            if (allowed != type(uint256).max) {
+                allowance[owner][msg.sender] = allowed - shares;
+            }
         }
 
         beforeWithdraw(assets, shares);
@@ -116,17 +112,13 @@ contract AaveV3ERC4626 is ERC4626 {
         lendingPool.withdraw(address(asset), assets, receiver);
     }
 
-    function redeem(uint256 shares, address receiver, address owner)
-        public
-        virtual
-        override
-        returns (uint256 assets)
-    {
+    function redeem(uint256 shares, address receiver, address owner) public virtual override returns (uint256 assets) {
         if (msg.sender != owner) {
             uint256 allowed = allowance[owner][msg.sender]; // Saves gas for limited approvals.
 
-            if (allowed != type(uint256).max) allowance[owner][msg.sender] =
-                allowed - shares;
+            if (allowed != type(uint256).max) {
+                allowance[owner][msg.sender] = allowed - shares;
+            }
         }
 
         // Check for rounding error since we round down in previewRedeem.
@@ -147,11 +139,7 @@ contract AaveV3ERC4626 is ERC4626 {
         return aToken.balanceOf(address(this));
     }
 
-    function afterDeposit(uint256 assets, uint256 /*shares*/ )
-        internal
-        virtual
-        override
-    {
+    function afterDeposit(uint256 assets, uint256 /*shares*/ ) internal virtual override {
         /// -----------------------------------------------------------------------
         /// Deposit assets into Aave
         /// -----------------------------------------------------------------------
@@ -163,23 +151,10 @@ contract AaveV3ERC4626 is ERC4626 {
         lendingPool.supply(address(asset), assets, address(this), 0);
     }
 
-    function maxDeposit(address)
-        public
-        view
-        virtual
-        override
-        returns (uint256)
-    {
+    function maxDeposit(address) public view virtual override returns (uint256) {
         // check if asset is paused
-        uint256 configData =
-            lendingPool.getReserveData(address(asset)).configuration.data;
-        if (
-            !(
-                _getActive(configData)
-                    && !_getFrozen(configData)
-                    && !_getPaused(configData)
-                )
-        ) {
+        uint256 configData = lendingPool.getReserveData(address(asset)).configuration.data;
+        if (!(_getActive(configData) && !_getFrozen(configData) && !_getPaused(configData))) {
             return 0;
         }
 
@@ -194,23 +169,10 @@ contract AaveV3ERC4626 is ERC4626 {
         return supplyCap - aToken.totalSupply();
     }
 
-    function maxMint(address)
-        public
-        view
-        virtual
-        override
-        returns (uint256)
-    {
+    function maxMint(address) public view virtual override returns (uint256) {
         // check if asset is paused
-        uint256 configData =
-            lendingPool.getReserveData(address(asset)).configuration.data;
-        if (
-            !(
-                _getActive(configData)
-                    && !_getFrozen(configData)
-                    && !_getPaused(configData)
-                )
-        ) {
+        uint256 configData = lendingPool.getReserveData(address(asset)).configuration.data;
+        if (!(_getActive(configData) && !_getFrozen(configData) && !_getPaused(configData))) {
             return 0;
         }
 
@@ -225,16 +187,9 @@ contract AaveV3ERC4626 is ERC4626 {
         return convertToShares(supplyCap - aToken.totalSupply());
     }
 
-    function maxWithdraw(address owner)
-        public
-        view
-        virtual
-        override
-        returns (uint256)
-    {
+    function maxWithdraw(address owner) public view virtual override returns (uint256) {
         // check if asset is paused
-        uint256 configData =
-            lendingPool.getReserveData(address(asset)).configuration.data;
+        uint256 configData = lendingPool.getReserveData(address(asset)).configuration.data;
         if (!(_getActive(configData) && !_getPaused(configData))) {
             return 0;
         }
@@ -244,16 +199,9 @@ contract AaveV3ERC4626 is ERC4626 {
         return cash < assetsBalance ? cash : assetsBalance;
     }
 
-    function maxRedeem(address owner)
-        public
-        view
-        virtual
-        override
-        returns (uint256)
-    {
+    function maxRedeem(address owner) public view virtual override returns (uint256) {
         // check if asset is paused
-        uint256 configData =
-            lendingPool.getReserveData(address(asset)).configuration.data;
+        uint256 configData = lendingPool.getReserveData(address(asset)).configuration.data;
         if (!(_getActive(configData) && !_getPaused(configData))) {
             return 0;
         }
@@ -268,21 +216,11 @@ contract AaveV3ERC4626 is ERC4626 {
     /// ERC20 metadata generation
     /// -----------------------------------------------------------------------
 
-    function _vaultName(ERC20 asset_)
-        internal
-        view
-        virtual
-        returns (string memory vaultName)
-    {
+    function _vaultName(ERC20 asset_) internal view virtual returns (string memory vaultName) {
         vaultName = string.concat("ERC4626-Wrapped Aave v3 ", asset_.symbol());
     }
 
-    function _vaultSymbol(ERC20 asset_)
-        internal
-        view
-        virtual
-        returns (string memory vaultSymbol)
-    {
+    function _vaultSymbol(ERC20 asset_) internal view virtual returns (string memory vaultSymbol) {
         vaultSymbol = string.concat("wa", asset_.symbol());
     }
 
@@ -291,9 +229,7 @@ contract AaveV3ERC4626 is ERC4626 {
     /// -----------------------------------------------------------------------
 
     function _getDecimals(uint256 configData) internal pure returns (uint8) {
-        return uint8(
-            (configData & ~DECIMALS_MASK) >> RESERVE_DECIMALS_START_BIT_POSITION
-        );
+        return uint8((configData & ~DECIMALS_MASK) >> RESERVE_DECIMALS_START_BIT_POSITION);
     }
 
     function _getActive(uint256 configData) internal pure returns (bool) {
@@ -308,11 +244,7 @@ contract AaveV3ERC4626 is ERC4626 {
         return configData & ~PAUSED_MASK != 0;
     }
 
-    function _getSupplyCap(uint256 configData)
-        internal
-        pure
-        returns (uint256)
-    {
+    function _getSupplyCap(uint256 configData) internal pure returns (uint256) {
         return (configData & ~SUPPLY_CAP_MASK) >> SUPPLY_CAP_START_BIT_POSITION;
     }
 }

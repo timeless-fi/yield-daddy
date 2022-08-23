@@ -37,11 +37,7 @@ contract AaveV2ERC4626Factory is ERC4626Factory {
     /// Constructor
     /// -----------------------------------------------------------------------
 
-    constructor(
-        IAaveMining aaveMining_,
-        address rewardRecipient_,
-        ILendingPool lendingPool_
-    ) {
+    constructor(IAaveMining aaveMining_, address rewardRecipient_, ILendingPool lendingPool_) {
         aaveMining = aaveMining_;
         lendingPool = lendingPool_;
         rewardRecipient = rewardRecipient_;
@@ -52,35 +48,22 @@ contract AaveV2ERC4626Factory is ERC4626Factory {
     /// -----------------------------------------------------------------------
 
     /// @inheritdoc ERC4626Factory
-    function createERC4626(ERC20 asset)
-        external
-        virtual
-        override
-        returns (ERC4626 vault)
-    {
-        ILendingPool.ReserveData memory reserveData =
-            lendingPool.getReserveData(address(asset));
+    function createERC4626(ERC20 asset) external virtual override returns (ERC4626 vault) {
+        ILendingPool.ReserveData memory reserveData = lendingPool.getReserveData(address(asset));
         address aTokenAddress = reserveData.aTokenAddress;
         if (aTokenAddress == address(0)) {
             revert AaveV2ERC4626Factory__ATokenNonexistent();
         }
 
         vault =
-        new AaveV2ERC4626{salt: bytes32(0)}(asset, ERC20(aTokenAddress), aaveMining, rewardRecipient, lendingPool);
+            new AaveV2ERC4626{salt: bytes32(0)}(asset, ERC20(aTokenAddress), aaveMining, rewardRecipient, lendingPool);
 
         emit CreateERC4626(asset, vault);
     }
 
     /// @inheritdoc ERC4626Factory
-    function computeERC4626Address(ERC20 asset)
-        external
-        view
-        virtual
-        override
-        returns (ERC4626 vault)
-    {
-        ILendingPool.ReserveData memory reserveData =
-            lendingPool.getReserveData(address(asset));
+    function computeERC4626Address(ERC20 asset) external view virtual override returns (ERC4626 vault) {
+        ILendingPool.ReserveData memory reserveData = lendingPool.getReserveData(address(asset));
         address aTokenAddress = reserveData.aTokenAddress;
 
         vault = ERC4626(
@@ -90,9 +73,7 @@ contract AaveV2ERC4626Factory is ERC4626Factory {
                         // Deployment bytecode:
                         type(AaveV2ERC4626).creationCode,
                         // Constructor arguments:
-                        abi.encode(
-                            asset, ERC20(aTokenAddress), aaveMining, rewardRecipient, lendingPool
-                        )
+                        abi.encode(asset, ERC20(aTokenAddress), aaveMining, rewardRecipient, lendingPool)
                     )
                 )
             )

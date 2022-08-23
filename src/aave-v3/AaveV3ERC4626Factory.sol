@@ -37,11 +37,7 @@ contract AaveV3ERC4626Factory is ERC4626Factory {
     /// Constructor
     /// -----------------------------------------------------------------------
 
-    constructor(
-        IPool lendingPool_,
-        address rewardRecipient_,
-        IRewardsController rewardsController_
-    ) {
+    constructor(IPool lendingPool_, address rewardRecipient_, IRewardsController rewardsController_) {
         lendingPool = lendingPool_;
         rewardRecipient = rewardRecipient_;
         rewardsController = rewardsController_;
@@ -52,14 +48,8 @@ contract AaveV3ERC4626Factory is ERC4626Factory {
     /// -----------------------------------------------------------------------
 
     /// @inheritdoc ERC4626Factory
-    function createERC4626(ERC20 asset)
-        external
-        virtual
-        override
-        returns (ERC4626 vault)
-    {
-        IPool.ReserveData memory reserveData =
-            lendingPool.getReserveData(address(asset));
+    function createERC4626(ERC20 asset) external virtual override returns (ERC4626 vault) {
+        IPool.ReserveData memory reserveData = lendingPool.getReserveData(address(asset));
         address aTokenAddress = reserveData.aTokenAddress;
         if (aTokenAddress == address(0)) {
             revert AaveV3ERC4626Factory__ATokenNonexistent();
@@ -72,15 +62,8 @@ contract AaveV3ERC4626Factory is ERC4626Factory {
     }
 
     /// @inheritdoc ERC4626Factory
-    function computeERC4626Address(ERC20 asset)
-        external
-        view
-        virtual
-        override
-        returns (ERC4626 vault)
-    {
-        IPool.ReserveData memory reserveData =
-            lendingPool.getReserveData(address(asset));
+    function computeERC4626Address(ERC20 asset) external view virtual override returns (ERC4626 vault) {
+        IPool.ReserveData memory reserveData = lendingPool.getReserveData(address(asset));
         address aTokenAddress = reserveData.aTokenAddress;
 
         vault = ERC4626(
@@ -90,9 +73,7 @@ contract AaveV3ERC4626Factory is ERC4626Factory {
                         // Deployment bytecode:
                         type(AaveV3ERC4626).creationCode,
                         // Constructor arguments:
-                        abi.encode(
-                            asset, ERC20(aTokenAddress), lendingPool, rewardRecipient, rewardsController
-                        )
+                        abi.encode(asset, ERC20(aTokenAddress), lendingPool, rewardRecipient, rewardsController)
                     )
                 )
             )

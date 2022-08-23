@@ -47,11 +47,7 @@ contract EulerERC4626 is ERC4626 {
         return eToken.balanceOfUnderlying(address(this));
     }
 
-    function beforeWithdraw(uint256 assets, uint256 /*shares*/ )
-        internal
-        virtual
-        override
-    {
+    function beforeWithdraw(uint256 assets, uint256 /*shares*/ ) internal virtual override {
         /// -----------------------------------------------------------------------
         /// Withdraw assets from Euler
         /// -----------------------------------------------------------------------
@@ -59,11 +55,7 @@ contract EulerERC4626 is ERC4626 {
         eToken.withdraw(0, assets);
     }
 
-    function afterDeposit(uint256 assets, uint256 /*shares*/ )
-        internal
-        virtual
-        override
-    {
+    function afterDeposit(uint256 assets, uint256 /*shares*/ ) internal virtual override {
         /// -----------------------------------------------------------------------
         /// Deposit assets into Euler
         /// -----------------------------------------------------------------------
@@ -75,23 +67,13 @@ contract EulerERC4626 is ERC4626 {
         eToken.deposit(0, assets);
     }
 
-    function maxWithdraw(address owner)
-        public
-        view
-        override
-        returns (uint256)
-    {
+    function maxWithdraw(address owner) public view override returns (uint256) {
         uint256 cash = asset.balanceOf(euler);
         uint256 assetsBalance = convertToAssets(balanceOf[owner]);
         return cash < assetsBalance ? cash : assetsBalance;
     }
 
-    function maxRedeem(address owner)
-        public
-        view
-        override
-        returns (uint256)
-    {
+    function maxRedeem(address owner) public view override returns (uint256) {
         uint256 cash = asset.balanceOf(euler);
         uint256 cashInShares = convertToShares(cash);
         uint256 shareBalance = balanceOf[owner];
@@ -102,21 +84,11 @@ contract EulerERC4626 is ERC4626 {
     /// ERC20 metadata generation
     /// -----------------------------------------------------------------------
 
-    function _vaultName(ERC20 asset_)
-        internal
-        view
-        virtual
-        returns (string memory vaultName)
-    {
+    function _vaultName(ERC20 asset_) internal view virtual returns (string memory vaultName) {
         vaultName = string.concat("ERC4626-Wrapped Euler ", asset_.symbol());
     }
 
-    function _vaultSymbol(ERC20 asset_)
-        internal
-        view
-        virtual
-        returns (string memory vaultSymbol)
-    {
+    function _vaultSymbol(ERC20 asset_) internal view virtual returns (string memory vaultSymbol) {
         vaultSymbol = string.concat("we", asset_.symbol());
     }
 }

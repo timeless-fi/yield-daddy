@@ -44,11 +44,7 @@ contract CompoundERC4626Factory is ERC4626Factory {
     /// Constructor
     /// -----------------------------------------------------------------------
 
-    constructor(
-        IComptroller comptroller_,
-        address cEtherAddress,
-        address rewardRecipient_
-    ) {
+    constructor(IComptroller comptroller_, address cEtherAddress, address rewardRecipient_) {
         comptroller = comptroller_;
         rewardRecipient = rewardRecipient_;
         comp = ERC20(comptroller_.getCompAddress());
@@ -74,31 +70,19 @@ contract CompoundERC4626Factory is ERC4626Factory {
     /// -----------------------------------------------------------------------
 
     /// @inheritdoc ERC4626Factory
-    function createERC4626(ERC20 asset)
-        external
-        virtual
-        override
-        returns (ERC4626 vault)
-    {
+    function createERC4626(ERC20 asset) external virtual override returns (ERC4626 vault) {
         ICERC20 cToken = underlyingToCToken[asset];
         if (address(cToken) == address(0)) {
             revert CompoundERC4626Factory__CTokenNonexistent();
         }
 
-        vault =
-        new CompoundERC4626{salt: bytes32(0)}(asset, comp, cToken, rewardRecipient, comptroller);
+        vault = new CompoundERC4626{salt: bytes32(0)}(asset, comp, cToken, rewardRecipient, comptroller);
 
         emit CreateERC4626(asset, vault);
     }
 
     /// @inheritdoc ERC4626Factory
-    function computeERC4626Address(ERC20 asset)
-        external
-        view
-        virtual
-        override
-        returns (ERC4626 vault)
-    {
+    function computeERC4626Address(ERC20 asset) external view virtual override returns (ERC4626 vault) {
         vault = ERC4626(
             _computeCreate2Address(
                 keccak256(
@@ -116,9 +100,7 @@ contract CompoundERC4626Factory is ERC4626Factory {
     /// @notice Updates the underlyingToCToken mapping in order to support newly added cTokens
     /// @dev This is needed because Compound doesn't have an onchain registry of cTokens corresponding to underlying assets.
     /// @param newCTokenIndices The indices of the new cTokens to register in the comptroller.allMarkets array
-    function updateUnderlyingToCToken(uint256[] memory newCTokenIndices)
-        public
-    {
+    function updateUnderlyingToCToken(uint256[] memory newCTokenIndices) public {
         uint256 numCTokens = newCTokenIndices.length;
         ICERC20 cToken;
         uint256 index;

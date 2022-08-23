@@ -45,31 +45,19 @@ contract EulerERC4626Factory is ERC4626Factory {
     /// -----------------------------------------------------------------------
 
     /// @inheritdoc ERC4626Factory
-    function createERC4626(ERC20 asset)
-        external
-        virtual
-        override
-        returns (ERC4626 vault)
-    {
+    function createERC4626(ERC20 asset) external virtual override returns (ERC4626 vault) {
         address eTokenAddress = markets.underlyingToEToken(address(asset));
         if (eTokenAddress == address(0)) {
             revert EulerERC4626Factory__ETokenNonexistent();
         }
 
-        vault =
-        new EulerERC4626{salt: bytes32(0)}(asset, euler, IEulerEToken(eTokenAddress));
+        vault = new EulerERC4626{salt: bytes32(0)}(asset, euler, IEulerEToken(eTokenAddress));
 
         emit CreateERC4626(asset, vault);
     }
 
     /// @inheritdoc ERC4626Factory
-    function computeERC4626Address(ERC20 asset)
-        external
-        view
-        virtual
-        override
-        returns (ERC4626 vault)
-    {
+    function computeERC4626Address(ERC20 asset) external view virtual override returns (ERC4626 vault) {
         vault = ERC4626(
             _computeCreate2Address(
                 keccak256(
@@ -77,9 +65,7 @@ contract EulerERC4626Factory is ERC4626Factory {
                         // Deployment bytecode:
                         type(EulerERC4626).creationCode,
                         // Constructor arguments:
-                        abi.encode(
-                            asset, euler, IEulerEToken(markets.underlyingToEToken(address(asset)))
-                        )
+                        abi.encode(asset, euler, IEulerEToken(markets.underlyingToEToken(address(asset))))
                     )
                 )
             )
