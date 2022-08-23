@@ -27,10 +27,8 @@ contract AaveV2ERC4626 is ERC4626 {
     /// Constants
     /// -----------------------------------------------------------------------
 
-    uint256 internal constant ACTIVE_MASK =
-        0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFF;
-    uint256 internal constant FROZEN_MASK =
-        0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDFFFFFFFFFFFFFF;
+    uint256 internal constant ACTIVE_MASK = 1 << 56;
+    uint256 internal constant FROZEN_MASK = 1 << 57;
 
     /// -----------------------------------------------------------------------
     /// Immutable params
@@ -58,9 +56,7 @@ contract AaveV2ERC4626 is ERC4626 {
         IAaveMining aaveMining_,
         address rewardRecipient_,
         ILendingPool lendingPool_
-    )
-        ERC4626(asset_, _vaultName(asset_), _vaultSymbol(asset_))
-    {
+    ) ERC4626(asset_, _vaultName(asset_), _vaultSymbol(asset_)) {
         aToken = aToken_;
         aaveMining = aaveMining_;
         lendingPool = lendingPool_;
@@ -82,19 +78,18 @@ contract AaveV2ERC4626 is ERC4626 {
     /// ERC4626 overrides
     /// -----------------------------------------------------------------------
 
-    function withdraw(uint256 assets, address receiver, address owner)
-        public
-        virtual
-        override
-        returns (uint256 shares)
-    {
+    function withdraw(
+        uint256 assets,
+        address receiver,
+        address owner
+    ) public virtual override returns (uint256 shares) {
         shares = previewWithdraw(assets); // No need to check for rounding error, previewWithdraw rounds up.
 
         if (msg.sender != owner) {
             uint256 allowed = allowance[owner][msg.sender]; // Saves gas for limited approvals.
 
-            if (allowed != type(uint256).max) allowance[owner][msg.sender] =
-                allowed - shares;
+            if (allowed != type(uint256).max)
+                allowance[owner][msg.sender] = allowed - shares;
         }
 
         beforeWithdraw(assets, shares);
@@ -107,17 +102,16 @@ contract AaveV2ERC4626 is ERC4626 {
         lendingPool.withdraw(address(asset), assets, receiver);
     }
 
-    function redeem(uint256 shares, address receiver, address owner)
-        public
-        virtual
-        override
-        returns (uint256 assets)
-    {
+    function redeem(
+        uint256 shares,
+        address receiver,
+        address owner
+    ) public virtual override returns (uint256 assets) {
         if (msg.sender != owner) {
             uint256 allowed = allowance[owner][msg.sender]; // Saves gas for limited approvals.
 
-            if (allowed != type(uint256).max) allowance[owner][msg.sender] =
-                allowed - shares;
+            if (allowed != type(uint256).max)
+                allowance[owner][msg.sender] = allowed - shares;
         }
 
         // Check for rounding error since we round down in previewRedeem.
@@ -138,11 +132,10 @@ contract AaveV2ERC4626 is ERC4626 {
         return aToken.balanceOf(address(this));
     }
 
-    function afterDeposit(uint256 assets, uint256 /*shares*/ )
-        internal
-        virtual
-        override
-    {
+    function afterDeposit(
+        uint256 assets,
+        uint256 /*shares*/
+    ) internal virtual override {
         /// -----------------------------------------------------------------------
         /// Deposit assets into Aave
         /// -----------------------------------------------------------------------
@@ -167,8 +160,10 @@ contract AaveV2ERC4626 is ERC4626 {
         }
 
         // check if asset is paused
-        uint256 configData =
-            lendingPool.getReserveData(address(asset)).configuration.data;
+        uint256 configData = lendingPool
+            .getReserveData(address(asset))
+            .configuration
+            .data;
         if (!(_getActive(configData) && !_getFrozen(configData))) {
             return 0;
         }
@@ -176,21 +171,17 @@ contract AaveV2ERC4626 is ERC4626 {
         return type(uint256).max;
     }
 
-    function maxMint(address)
-        public
-        view
-        virtual
-        override
-        returns (uint256)
-    {
+    function maxMint(address) public view virtual override returns (uint256) {
         // check if pool is paused
         if (lendingPool.paused()) {
             return 0;
         }
 
         // check if asset is paused
-        uint256 configData =
-            lendingPool.getReserveData(address(asset)).configuration.data;
+        uint256 configData = lendingPool
+            .getReserveData(address(asset))
+            .configuration
+            .data;
         if (!(_getActive(configData) && !_getFrozen(configData))) {
             return 0;
         }
@@ -211,8 +202,10 @@ contract AaveV2ERC4626 is ERC4626 {
         }
 
         // check if asset is paused
-        uint256 configData =
-            lendingPool.getReserveData(address(asset)).configuration.data;
+        uint256 configData = lendingPool
+            .getReserveData(address(asset))
+            .configuration
+            .data;
         if (!_getActive(configData)) {
             return 0;
         }
@@ -235,8 +228,10 @@ contract AaveV2ERC4626 is ERC4626 {
         }
 
         // check if asset is paused
-        uint256 configData =
-            lendingPool.getReserveData(address(asset)).configuration.data;
+        uint256 configData = lendingPool
+            .getReserveData(address(asset))
+            .configuration
+            .data;
         if (!_getActive(configData)) {
             return 0;
         }
@@ -266,7 +261,7 @@ contract AaveV2ERC4626 is ERC4626 {
         virtual
         returns (string memory vaultSymbol)
     {
-        vaultSymbol = string.concat("wa", asset_.symbol());
+        vaultSymbol = string.concat("wa2", asset_.symbol());
     }
 
     /// -----------------------------------------------------------------------
@@ -274,10 +269,10 @@ contract AaveV2ERC4626 is ERC4626 {
     /// -----------------------------------------------------------------------
 
     function _getActive(uint256 configData) internal pure returns (bool) {
-        return configData & ~ACTIVE_MASK != 0;
+        return (configData & ACTIVE_MASK) != 0;
     }
 
     function _getFrozen(uint256 configData) internal pure returns (bool) {
-        return configData & ~FROZEN_MASK != 0;
+        return (configData & FROZEN_MASK) != 0;
     }
 }
