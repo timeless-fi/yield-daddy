@@ -24,6 +24,12 @@ contract AaveV3ERC4626 is ERC4626 {
     using SafeTransferLib for ERC20;
 
     /// -----------------------------------------------------------------------
+    /// Events
+    /// -----------------------------------------------------------------------
+
+    event ClaimRewards(uint256 amount);
+
+    /// -----------------------------------------------------------------------
     /// Constants
     /// -----------------------------------------------------------------------
 
@@ -79,7 +85,8 @@ contract AaveV3ERC4626 is ERC4626 {
     function claimRewards() external {
         address[] memory assets = new address[](1);
         assets[0] = address(aToken);
-        rewardsController.claimAllRewards(assets, rewardRecipient);
+        (, uint256[] memory claimedAmounts) = rewardsController.claimAllRewards(assets, rewardRecipient);
+        emit ClaimRewards(claimedAmounts[0]);
     }
 
     /// -----------------------------------------------------------------------

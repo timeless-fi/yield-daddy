@@ -185,8 +185,8 @@ contract StETHERC4626Test is Test {
         // init 2 users with a 1e18 balance
         address alice = address(0xABCD);
         address bob = address(0xDCBA);
-        mintUnderlying(alice, 1e18 + 1);
-        mintUnderlying(bob, 1e18 + 1);
+        mintUnderlying(alice, 1e18 + 2);
+        mintUnderlying(bob, 1e18 + 2);
         uint256 underlyingAmount = 1e18;
         uint256 shareAmount = vault.convertToShares(1e18);
 

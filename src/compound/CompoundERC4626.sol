@@ -21,6 +21,12 @@ contract CompoundERC4626 is ERC4626 {
     using SafeTransferLib for ERC20;
 
     /// -----------------------------------------------------------------------
+    /// Events
+    /// -----------------------------------------------------------------------
+
+    event ClaimRewards(uint256 amount);
+
+    /// -----------------------------------------------------------------------
     /// Errors
     /// -----------------------------------------------------------------------
 
@@ -72,7 +78,9 @@ contract CompoundERC4626 is ERC4626 {
         ICERC20[] memory cTokens = new ICERC20[](1);
         cTokens[0] = cToken;
         comptroller.claimComp(address(this), cTokens);
-        comp.safeTransfer(rewardRecipient, comp.balanceOf(address(this)));
+        uint256 amount = comp.balanceOf(address(this));
+        comp.safeTransfer(rewardRecipient, amount);
+        emit ClaimRewards(amount);
     }
 
     /// -----------------------------------------------------------------------
