@@ -75,9 +75,11 @@ contract CompoundERC4626 is ERC4626 {
 
     /// @notice Claims liquidity mining rewards from Compound and sends it to rewardRecipient
     function claimRewards() external {
+        address[] memory holders = new address[](1);
+        holders[0] = address(this);
         ICERC20[] memory cTokens = new ICERC20[](1);
         cTokens[0] = cToken;
-        comptroller.claimComp(address(this), cTokens);
+        comptroller.claimComp(holders, cTokens, false, true);
         uint256 amount = comp.balanceOf(address(this));
         comp.safeTransfer(rewardRecipient, amount);
         emit ClaimRewards(amount);
