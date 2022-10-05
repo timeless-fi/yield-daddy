@@ -202,14 +202,14 @@ contract StETHERC4626Test is Test {
 
         assertEq(vault.balanceOf(alice), 0);
         assertEq(vault.balanceOf(bob), shareAmount);
-        assertEq(underlying.balanceOf(alice), 0);
+        assertLe(underlying.balanceOf(alice), 1);
 
         // bob mint 1e18 for alice
         vm.prank(bob);
         vault.mint(shareAmount, alice);
         assertEq(vault.balanceOf(alice), shareAmount);
         assertEq(vault.balanceOf(bob), shareAmount);
-        assertEq(underlying.balanceOf(bob), 0);
+        assertLe(underlying.balanceOf(bob), 1);
 
         // alice redeem 1e18 for bob
         vm.prank(alice);
