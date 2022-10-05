@@ -104,7 +104,7 @@ contract CompoundERC4626Factory is ERC4626Factory {
     /// @notice Updates the underlyingToCToken mapping in order to support newly added cTokens
     /// @dev This is needed because Compound doesn't have an onchain registry of cTokens corresponding to underlying assets.
     /// @param newCTokenIndices The indices of the new cTokens to register in the comptroller.allMarkets array
-    function updateUnderlyingToCToken(uint256[] memory newCTokenIndices) external {
+    function updateUnderlyingToCToken(uint256[] calldata newCTokenIndices) external {
         uint256 numCTokens = newCTokenIndices.length;
         ICERC20 cToken;
         uint256 index;
