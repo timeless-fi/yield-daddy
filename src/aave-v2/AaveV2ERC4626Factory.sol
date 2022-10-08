@@ -17,7 +17,7 @@ contract AaveV2ERC4626Factory is ERC4626Factory {
     /// Errors
     /// -----------------------------------------------------------------------
 
-    /// @notice Thrown when trying to deploy an AaveV3ERC4626 vault using an asset without an aToken
+    /// @notice Thrown when trying to deploy an AaveV2ERC4626 vault using an asset without an aToken
     error AaveV2ERC4626Factory__ATokenNonexistent();
 
     /// -----------------------------------------------------------------------
