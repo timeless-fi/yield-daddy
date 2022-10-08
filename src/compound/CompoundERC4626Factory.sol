@@ -33,6 +33,9 @@ contract CompoundERC4626Factory is ERC4626Factory {
     /// @notice The Compound comptroller contract
     IComptroller public immutable comptroller;
 
+    /// @notice The Compound cEther address
+    address internal immutable cEtherAddress;
+
     /// -----------------------------------------------------------------------
     /// Storage variables
     /// -----------------------------------------------------------------------
@@ -44,8 +47,9 @@ contract CompoundERC4626Factory is ERC4626Factory {
     /// Constructor
     /// -----------------------------------------------------------------------
 
-    constructor(IComptroller comptroller_, address cEtherAddress, address rewardRecipient_) {
+    constructor(IComptroller comptroller_, address cEtherAddress_, address rewardRecipient_) {
         comptroller = comptroller_;
+        cEtherAddress = cEtherAddress_;
         rewardRecipient = rewardRecipient_;
         comp = ERC20(comptroller_.getCompAddress());
 
@@ -55,7 +59,7 @@ contract CompoundERC4626Factory is ERC4626Factory {
         ICERC20 cToken;
         for (uint256 i; i < numCTokens;) {
             cToken = allCTokens[i];
-            if (address(cToken) != cEtherAddress) {
+            if (address(cToken) != cEtherAddress_) {
                 underlyingToCToken[cToken.underlying()] = cToken;
             }
 
@@ -100,14 +104,16 @@ contract CompoundERC4626Factory is ERC4626Factory {
     /// @notice Updates the underlyingToCToken mapping in order to support newly added cTokens
     /// @dev This is needed because Compound doesn't have an onchain registry of cTokens corresponding to underlying assets.
     /// @param newCTokenIndices The indices of the new cTokens to register in the comptroller.allMarkets array
-    function updateUnderlyingToCToken(uint256[] memory newCTokenIndices) public {
+    function updateUnderlyingToCToken(uint256[] calldata newCTokenIndices) external {
         uint256 numCTokens = newCTokenIndices.length;
         ICERC20 cToken;
         uint256 index;
         for (uint256 i; i < numCTokens;) {
             index = newCTokenIndices[i];
             cToken = comptroller.allMarkets(index);
-            underlyingToCToken[cToken.underlying()] = cToken;
+            if (address(cToken) != cEtherAddress) {
+                underlyingToCToken[cToken.underlying()] = cToken;
+            }
 
             unchecked {
                 ++i;

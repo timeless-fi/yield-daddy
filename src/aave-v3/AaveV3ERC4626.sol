@@ -68,9 +68,7 @@ contract AaveV3ERC4626 is ERC4626 {
         IPool lendingPool_,
         address rewardRecipient_,
         IRewardsController rewardsController_
-    )
-        ERC4626(asset_, _vaultName(asset_), _vaultSymbol(asset_))
-    {
+    ) ERC4626(asset_, _vaultName(asset_), _vaultSymbol(asset_)) {
         aToken = aToken_;
         lendingPool = lendingPool_;
         rewardRecipient = rewardRecipient_;

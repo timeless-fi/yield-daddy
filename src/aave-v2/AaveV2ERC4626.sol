@@ -62,9 +62,7 @@ contract AaveV2ERC4626 is ERC4626 {
         IAaveMining aaveMining_,
         address rewardRecipient_,
         ILendingPool lendingPool_
-    )
-        ERC4626(asset_, _vaultName(asset_), _vaultSymbol(asset_))
-    {
+    ) ERC4626(asset_, _vaultName(asset_), _vaultSymbol(asset_)) {
         aToken = aToken_;
         aaveMining = aaveMining_;
         lendingPool = lendingPool_;
