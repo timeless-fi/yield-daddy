@@ -55,8 +55,9 @@ contract AaveV3ERC4626Factory is ERC4626Factory {
             revert AaveV3ERC4626Factory__ATokenNonexistent();
         }
 
-        vault =
-        new AaveV3ERC4626{salt: bytes32(0)}(asset, ERC20(aTokenAddress), lendingPool, rewardRecipient, rewardsController);
+        vault = new AaveV3ERC4626{salt: bytes32(0)}(
+            asset, ERC20(aTokenAddress), lendingPool, rewardRecipient, rewardsController
+        );
 
         emit CreateERC4626(asset, vault);
     }

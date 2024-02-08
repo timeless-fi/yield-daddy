@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Script.sol";
 
-import {CREATE3Factory} from "create3-factory/CREATE3Factory.sol";
+import {CREATE3Factory} from "create3-factory/src/CREATE3Factory.sol";
 
 import {AaveV2ERC4626Factory} from "../../src/aave-v2/AaveV2ERC4626Factory.sol";
 
