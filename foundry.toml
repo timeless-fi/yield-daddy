@@ -9,6 +9,7 @@ verbosity = 4
 [rpc_endpoints]
 arbitrum = "${RPC_URL_ARBITRUM}"
 avalanche = "${RPC_URL_AVALANCHE}"
+base = "${RPC_URL_BASE}"
 fantom = "${RPC_URL_FANTOM}"
 goerli = "${RPC_URL_GOERLI}"
 mainnet = "${RPC_URL_MAINNET}"
@@ -19,6 +20,7 @@ sepolia = "${RPC_URL_SEPOLIA}"
 [etherscan]
 arbitrum = {key = "${ARBISCAN_KEY}", url = "https://api.arbiscan.io/api"}
 avalanche = {key = "${SNOWTRACE_KEY}", url = "https://api.snowtrace.io/api"}
+base = {key = "${BASESCAN_KEY}", url = "https://api.basescan.org/api"}
 fantom = {key = "${FTMSCAN_KEY}", url = "https://api.ftmscan.com/api"}
 goerli = {key = "${ETHERSCAN_KEY}", url = "https://api-goerli.etherscan.io/api"}
 mainnet = {key = "${ETHERSCAN_KEY}"}
